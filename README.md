@@ -2,6 +2,8 @@
 
 **A platform for deploying user-friendly transport simulation toolkits.**
 
+**Version 0.1.0 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
+
 QSETRANSPORT is an open, modular platform for studying how transport
 improvements reshape cities and regions. It provides a common home for multiple
 deployable toolkits that connect spatial data and transport scenarios to
@@ -145,3 +147,18 @@ and migration responses across city closures.
 Ahlfeldt, G. M., Redding, S. J., Sturm, D. M., and Wolf, N. (2015), “The
 Economics of Density: Evidence from the Berlin Wall,” *Econometrica*, 83(6),
 2127–2189.
+
+## Citation
+
+If you use QSETRANSPORT in research, teaching, or applied policy work, please
+cite the platform as:
+
+> Ahlfeldt, Gabriel M. (2026). *QSETRANSPORT: A Platform for User-Friendly
+> Transport Simulation Toolkits* (Version 0.1.0) [Computer software].
+> https://github.com/Ahlfeldt/QSETRANSPORT-toolkit
+
+Machine-readable citation metadata are provided in [`CITATION.cff`](CITATION.cff),
+which GitHub can use to generate citations in common formats. When using an
+individual toolkit, please also follow the toolkit-specific citation guidance;
+QUETRANSPORT, for example, requires citation of both the software and its
+underlying ARSW methodology.

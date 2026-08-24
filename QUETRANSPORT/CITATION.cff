@@ -7,6 +7,8 @@ authors:
     given-names: Gabriel M.
 version: 0.1.0
 date-released: 2026-08-24
+repository-code: "https://github.com/Ahlfeldt/QSETRANSPORT-toolkit"
+url: "https://github.com/Ahlfeldt/QSETRANSPORT-toolkit/tree/main/QUETRANSPORT"
 references:
   - type: article
     title: "The Economics of Density: Evidence from the Berlin Wall"

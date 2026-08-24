@@ -1,8 +1,12 @@
 
-function aggregate = qt_write_closure_results(projectRoot,data,inversion,baseline,counterfactual,config)
+function aggregate = qt_write_closure_results(projectRoot,data,inversion,baseline,...
+    counterfactual,travelTimeBaseline,travelTimeCounterfactual,config)
 %QT_WRITE_CLOSURE_RESULTS Save named local and aggregate equilibrium effects.
 % Residential and commercial rents are prices per unit of FLOOR SPACE.
 % Annual land rent is separately derived as the land share of floor revenue.
+% Total travel time is the expected one-way commuting time multiplied by the
+% modeled commuter population. It therefore captures route-choice changes and,
+% in the open city, the change in the number of commuters.
 
 closure = string(baseline.closure);
 pct = qt_percent_change(counterfactual.endog,baseline.endog);
@@ -34,6 +38,16 @@ landRent0 = landShare.*floorRevenue0;
 landRent1 = landShare.*floorRevenue1;
 landRentPct = qt_percent_change(landRent1,landRent0);
 
+% The solvers return an N-by-N matrix of unconditional residence-workplace
+% probabilities that sums to one. Weight every OD travel time by its equilibrium
+% commuting probability, then multiply by modeled population to obtain total
+% one-way commuter-minutes. Using dot avoids forming another large N-by-N array.
+expectedTravelTime0 = dot(baseline.commutingProbability(:),travelTimeBaseline(:));
+expectedTravelTime1 = dot(counterfactual.commutingProbability(:),travelTimeCounterfactual(:));
+totalTravelTime0 = baseline.population.*expectedTravelTime0;
+totalTravelTime1 = counterfactual.population.*expectedTravelTime1;
+totalTravelTimePct = 100.*(totalTravelTime1./totalTravelTime0-1);
+
 % Save local land rent explicitly so the aggregate incidence calculation is
 % transparent and can be reconstructed by summing the local level columns.
 T = table(data.id,E0(:,7),E1(:,7),pct(:,7),E0(:,8),E1(:,8),pct(:,8),...
@@ -56,7 +70,10 @@ aggregate = table(closure,...
     100*(counterfactual.population/baseline.population-1),...
     100*(sum(E1(:,4),'omitnan')/sum(E0(:,4),'omitnan')-1),...
     100*(sum(landRent1,'omitnan')/sum(landRent0,'omitnan')-1),...
-    'VariableNames',{'Closure','ExpectedUtilityPct','PopulationPct','GDPPct','TotalLandRentPct'});
+    totalTravelTimePct,...
+    'VariableNames',{'Closure','ExpectedUtilityPct','PopulationPct','GDPPct',...
+    'TotalLandRentPct','TotalTravelTimePct'});
 aggregate.ExpectedUtilityPct(abs(aggregate.ExpectedUtilityPct)<1e-10)=0;
 aggregate.PopulationPct(abs(aggregate.PopulationPct)<1e-10)=0;
+aggregate.TotalTravelTimePct(abs(aggregate.TotalTravelTimePct)<1e-10)=0;
 end

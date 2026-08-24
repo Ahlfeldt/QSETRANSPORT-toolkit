@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use QSETRANSPORT, please cite this software. If you use a deployed toolkit, please also follow its toolkit-specific citation instructions."
+title: "QSETRANSPORT: A Platform for User-Friendly Transport Simulation Toolkits"
+type: software
+authors:
+  - family-names: Ahlfeldt
+    given-names: Gabriel M.
+version: 0.1.0
+date-released: 2026-08-24
+repository-code: "https://github.com/Ahlfeldt/QSETRANSPORT-toolkit"
+url: "https://github.com/Ahlfeldt/QSETRANSPORT-toolkit"

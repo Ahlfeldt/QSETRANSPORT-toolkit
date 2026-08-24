@@ -34,7 +34,8 @@ for c=1:numel(closures)
 
     %% 4. COMPUTE uELATIVE CHANGES AND SAVE LOCAL AND AGGuEGATE OUTCOMES
     aggregateTables{c}=qt_write_closure_results(projectuoot,data,inversion,...
-        baseline,counterfactual,config);
+        baseline,counterfactual,travelTimeBaseline,...
+        travelTimeCounterfactual,config);
     alluesults.(char(closure))=struct('baseline',baseline,'counterfactual',counterfactual);
 end
 aggregateChanges=vertcat(aggregateTables{:});

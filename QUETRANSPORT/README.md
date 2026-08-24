@@ -1,6 +1,8 @@
-# QUETRANSPORT (beta)
+# QUETRANSPORT
 
 **A transparent, configurable toolkit for quantitative transport appraisal in spatial equilibrium.**
+
+**Version 0.1.0 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
 
 QUETRANSPORT integrates:
 
@@ -169,7 +171,7 @@ results table from an illustrative application.
 | `outputs/tables/` | aggregate outcome tables |
 | `outputs/maps/` | transport innovation, imposed shocks and effects |
 
-Local outputs include population, employment, wages, effective wages, floor-space prices, floor space, output and land rent. Aggregate reports distinguish expected utility, population, GDP/output, wage bill and residual land rent. Welfare adjusts in the closed city; outside utility is fixed and population adjusts in the open city.
+Local outputs include population, employment, wages, effective wages, floor-space prices, floor space, output and land rent. Aggregate reports distinguish expected utility, population, GDP/output, residual land rent, and total one-way commuting time. Total travel time weights every OD travel time by its equilibrium commuting probability and multiplies the resulting expected commute by the modeled commuter population. Welfare adjusts in the closed city; outside utility is fixed and population adjusts in the open city.
 
 ## Repository layout
 
@@ -216,7 +218,25 @@ Adapted routines from the [ARSW2015 toolkit](https://github.com/Ahlfeldt/ARSW201
 
 ## Citation, license and contributing
 
-Please cite this software and ARSW. Metadata are in [`CITATION.cff`](CITATION.cff).
+If you use QUETRANSPORT, please cite **both the toolkit and the ARSW paper that
+provides its underlying quantitative urban methodology**.
+
+### Toolkit
+
+> Ahlfeldt, Gabriel M. (2026). *QUETRANSPORT: A Toolkit for Quantitative
+> Transport Appraisal in Spatial Equilibrium* (Version 0.1.0) [Computer
+> software]. https://github.com/Ahlfeldt/QSETRANSPORT-toolkit/tree/main/QUETRANSPORT
+
+### Underlying methodology
+
+> Ahlfeldt, Gabriel M.; Redding, Stephen J.; Sturm, Daniel M.; and Wolf,
+> Nikolaus (2015). “The Economics of Density: Evidence from the Berlin Wall.”
+> *Econometrica*, 83(6), 2127–2189.
+> [https://doi.org/10.3982/ECTA10876](https://doi.org/10.3982/ECTA10876)
+
+Machine-readable metadata for the toolkit and the methodology reference are in
+[`CITATION.cff`](CITATION.cff). GitHub can use this file to generate citations
+in common formats.
 
 No public software license has yet been selected. Until one is added, all rights are reserved. Selecting a license is required before public release.
 

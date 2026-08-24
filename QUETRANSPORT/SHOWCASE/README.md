@@ -55,10 +55,10 @@ distribution of economic activity when city population is allowed to adjust.
 
 ## Aggregate results
 
-| City closure | Expected utility | Population | GDP/output | Total land rent |
-|---|---:|---:|---:|---:|
-| Closed | +1.013% | 0.000% | +0.897% | +0.897% |
-| Open | approximately 0% | +5.406% | +5.631% | +5.631% |
+| City closure | Expected utility | Population | GDP/output | Total land rent | Total travel time |
+|---|---:|---:|---:|---:|---:|
+| Closed | +1.013% | 0.000% | +0.897% | +0.897% | +0.645% |
+| Open | approximately 0% | +5.406% | +5.631% | +5.631% | +6.086% |
 
 These closure-specific outcomes answer different questions:
 
@@ -66,6 +66,13 @@ These closure-specific outcomes answer different questions:
   adjusts.
 - In the **open city**, outside utility is fixed and population adjusts through
   migration. The tiny reported utility deviation is numerical approximation.
+
+**Total travel time** is the percentage change in total one-way
+commuter-minutes. QUETRANSPORT weights each residence-workplace travel time by
+its equilibrium commuting probability and multiplies the resulting expected
+commute by the modeled commuter population. It can increase even when many OD
+connections become faster because households and jobs relocate; in the open
+city it also reflects the change in the number of commuters.
 
 The unrounded values are available in
 [`aggregate_changes.csv`](aggregate_changes.csv).
