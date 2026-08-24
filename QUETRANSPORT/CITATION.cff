@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use QUETRANSPORT, please cite this software and the underlying ARSW paper."
-title: "QUETRANSPORT: A Toolkit for Quantitative Transport Appraisal in Spatial Equilibrium"
+title: "QUETRANSPORT: A Toolkit for Transport Appraisal with a Quantitative Urban Model"
 type: software
 authors:
   - family-names: Ahlfeldt

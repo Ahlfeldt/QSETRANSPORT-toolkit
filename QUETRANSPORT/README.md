@@ -1,6 +1,6 @@
 # QUETRANSPORT
 
-**A transparent, configurable toolkit for quantitative transport appraisal in spatial equilibrium.**
+***A Toolkit for Transport Appraisal with a Quantitative Urban Model.***
 
 **Version 0.1.0 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
 
@@ -223,8 +223,8 @@ provides its underlying quantitative urban methodology**.
 
 ### Toolkit
 
-> Ahlfeldt, Gabriel M. (2026). *QUETRANSPORT: A Toolkit for Quantitative
-> Transport Appraisal in Spatial Equilibrium* (Version 0.1.0) [Computer
+> Ahlfeldt, Gabriel M. (2026). *QUETRANSPORT: A Toolkit for Transport Appraisal
+> with a Quantitative Urban Model* (Version 0.1.0) [Computer
 > software]. https://github.com/Ahlfeldt/QSETRANSPORT-toolkit/tree/main/QUETRANSPORT
 
 ### Underlying methodology
