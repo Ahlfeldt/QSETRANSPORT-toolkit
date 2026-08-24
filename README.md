@@ -1,2 +1,113 @@
-# QSE TRANSPORT toolkit (beta version)
-Toolkit for modelling transport improvements in quantitative spatial models
+# QSETRANSPORT
+
+**A platform for deploying user-friendly transport simulation toolkits.**
+
+QSETRANSPORT is an open, modular platform for studying how transport
+improvements reshape cities and regions. It provides a common home for multiple
+deployable toolkits that connect spatial data and transport scenarios to
+economic and spatial models through transparent, reproducible workflows.
+
+The ambition is simple: make sophisticated place-based policy analysis usable
+beyond the small group of researchers who develop the underlying models. Each
+toolkit packages a particular modeling approach into an accessible application,
+while shared conventions make data and scenarios reusable across toolkits.
+
+## What can QSETRANSPORT evaluate?
+
+A deployed QSETRANSPORT toolkit compares a baseline transport system with a
+proposed improvement and traces its effects through the modeled city or region.
+Depending on the toolkit and selected model, outcomes can include:
+
+- travel times and accessibility;
+- the location of residents and employment;
+- wages, productivity, amenities, and rents;
+- economic activity and land use;
+- aggregate welfare or city population; and
+- maps showing where gains and adjustments occur.
+
+Transport interventions can be combined with other changes in economic
+fundamentals, allowing users to evaluate broader policy packages rather than an
+isolated infrastructure change.
+
+## Designed for real cities—and for users
+
+Each toolkit is designed around a straightforward workflow:
+
+1. **Supply urban data** for the study area.
+2. **Describe the baseline and improved transport system.**
+3. **Choose model assumptions and policy scenarios in one configuration file.**
+4. **Run the pipeline and inspect validated tables, diagnostics, and maps.**
+
+Depending on the deployed toolkit, users can work with original spatial units
+or regular square and hexagonal grids. The platform is compatible with gridded
+datasets available for many cities through the AABPL toolkit, while its
+standardized interfaces also allow other data sources and transport matrices to
+be used.
+
+## A collection of deployable toolkits
+
+QSETRANSPORT is the umbrella platform—not a single model application. Individual
+subfolders contain toolkits that can be configured and deployed for particular
+cities, transport interventions, and research questions. A deployment may use
+one toolkit or, where appropriate, combine several compatible toolkits.
+
+New toolkits can introduce different model families and outcome concepts while
+reusing common inputs, scenario definitions, validation rules, and reporting
+conventions. This modular structure allows the collection to grow without
+forcing every application into one economic model.
+
+### Quantitative urban models
+
+The first available deployable toolkit,
+[`QUETRANSPORT`](QUETRANSPORT/), evaluates transport improvements in a
+quantitative urban model with spatial equilibrium. It is one toolkit within the
+broader QSETRANSPORT collection. It:
+
+- prepares consistent model geography and variables;
+- constructs or validates baseline and counterfactual travel-time matrices;
+- recovers a model-consistent baseline spatial economy;
+- simulates open- and closed-city counterfactuals;
+- supports additional productivity, amenity, and density changes; and
+- produces diagnostics, local and aggregate results, and maps.
+
+The economic core builds on the structure and numerical approach of Ahlfeldt,
+Redding, Sturm and Wolf (2015), generalized beyond Berlin-specific inputs and
+dimensions. See the [QUETRANSPORT documentation](QUETRANSPORT/README.md) for the
+model, inputs, installation instructions, examples, and complete workflow.
+
+Additional deployable toolkits and model families are planned.
+
+## Built on established research toolkits
+
+QSETRANSPORT brings together and extends ideas and components from existing
+research software, including:
+
+- the **ARSW2015 toolkit** for quantitative urban equilibrium;
+- the **GRID toolkit** for constructing consistent spatial data; and
+- the **TTMATRIX toolkit** for representing transport accessibility.
+
+The project uses explicit data contracts between these components so that each
+stage can be inspected, tested, or replaced independently.
+
+## Project status
+
+QSETRANSPORT is research software under active development. The quantitative
+urban-model implementation is available as a beta version; additional testing,
+examples, documentation, and model families are in development.
+
+Results should always be interpreted alongside the selected assumptions, input
+validation, and numerical convergence diagnostics.
+
+## Explore the available toolkit
+
+- [Open QUETRANSPORT](QUETRANSPORT/)
+- [Read the user guide](QUETRANSPORT/USER_GUIDE.md)
+- [Review the model codebook](QUETRANSPORT/docs/QUETRANSPORT_CODEBOOK.pdf)
+- [Check implementation status](QUETRANSPORT/STATUS.md)
+- [Contribute](QUETRANSPORT/CONTRIBUTING.md)
+
+## Research foundation
+
+Ahlfeldt, G. M., Redding, S. J., Sturm, D. M., and Wolf, N. (2015), “The
+Economics of Density: Evidence from the Berlin Wall,” *Econometrica*, 83(6),
+2127–2189.
