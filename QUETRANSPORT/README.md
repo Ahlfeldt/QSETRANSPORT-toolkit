@@ -4,11 +4,11 @@
 
 QUETRANSPORT integrates:
 
-1. **GRID:** converts polygon data into a consistent spatial economy.
-2. **TTMATRIX:** constructs comparable baseline and policy travel-time matrices, or validates user-provided matrices.
+1. [**GRID**](https://github.com/Ahlfeldt/GRID-toolkit): converts polygon data into a consistent spatial economy.
+2. [**TTMATRIX**](https://github.com/Ahlfeldt/TTMATRIX-toolkit): constructs comparable baseline and policy travel-time matrices, or validates user-provided matrices.
 3. **MATLAB:** inverts a baseline equilibrium and solves transport counterfactuals under open- and closed-city closures.
 
-The economic core follows the structure and numerical style of Ahlfeldt, Redding, Sturm and Wolf (2015, *Econometrica*, ARSW), while removing Berlin-specific dimensions, paths and inputs. It evaluates policies conditional on user-chosen parameters; it does **not** estimate structural parameters.
+The economic core follows the structure and numerical style of Ahlfeldt, Redding, Sturm and Wolf (2015, *Econometrica*, ARSW), building on the [ARSW2015 toolkit](https://github.com/Ahlfeldt/ARSW2015-toolkit) while removing Berlin-specific dimensions, paths and inputs. It evaluates policies conditional on user-chosen parameters; it does **not** estimate structural parameters.
 
 > **Status:** research software under active development. Validate every input and convergence diagnostic before interpreting results.
 
@@ -173,7 +173,7 @@ Dense matrices require N² storage and routing can be slow. Fine grids may requi
 
 > Ahlfeldt, Gabriel M.; Redding, Stephen J.; Sturm, Daniel M.; and Wolf, Nikolaus (2015). “The Economics of Density: Evidence from the Berlin Wall.” *Econometrica* 83(6), 2127–2189.
 
-Adapted ARSW routines are isolated under `src/matlab/functions/arsw/`; see [`vendor/README.md`](vendor/README.md).
+Adapted routines from the [ARSW2015 toolkit](https://github.com/Ahlfeldt/ARSW2015-toolkit) are isolated under `src/matlab/functions/arsw/`; see [`vendor/README.md`](vendor/README.md).
 
 ## Citation, license and contributing
 
