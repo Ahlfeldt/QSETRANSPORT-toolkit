@@ -1,0 +1,563 @@
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.35cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,microtype}
+\usepackage{amsmath,amssymb,booktabs,longtable,array}
+\usepackage{enumitem,xcolor,hyperref}
+\usepackage{algorithm,algpseudocode}
+\hypersetup{colorlinks=true,linkcolor=blue!55!black,urlcolor=blue!55!black}
+\newcommand{\qt}{\textsc{QUETRANSPORT}}
+\newcommand{\Rland}{\mathcal{R}}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\title{\textbf{Codebook for QUETRANSPORT}\\
+\large A general quantitative spatial toolkit for transport appraisal}
+\author{Gabriel M. Ahlfeldt}
+\date{\today}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+\qt\ implements a deliberately streamlined version of the quantitative urban
+model in Ahlfeldt, Redding, Sturm, and Wolf (2015, ARSW) for an arbitrary
+number of spatial units. It takes standardized spatial data and baseline and
+policy travel-time matrices, inverts local fundamentals conditional on chosen
+parameters, and solves closed- and open-city counterfactual equilibria. This
+codebook states the assumptions and equations implemented in MATLAB, shows
+that the equilibrium has as many equations as unknown target variables,
+documents every inverted primitive, and distinguishes the common observed
+floor-space rent, endogenous use-specific bid rents, and annual land rent.
+Structural estimation is outside the toolkit.
+\end{abstract}
+\tableofcontents
+\newpage
+
+\section{Purpose, scope, and sequence}
+The toolkit answers a conditional question: given a quantitative spatial model,
+a baseline city, parameter values, and a transport change, what new spatial
+equilibrium does the model imply? It does not estimate the structural
+parameters. The user chooses variable mappings, parameters, shocks, numerical
+controls, and city closure in the root file \texttt{project\_config.yaml}.
+
+The workflow has four economic steps:
+\begin{enumerate}
+\item specify parameter values and assemble mutually consistent spatial inputs;
+\item invert the baseline fundamentals that rationalize the observed allocation;
+\item change travel times and, optionally, productivity, amenity, or development
+fundamentals;
+\item solve the baseline and policy equilibria under the same closure and report
+local, aggregate, welfare, and land-rent effects.
+\end{enumerate}
+Every location vector has length $N$. Both travel-time matrices are
+$N\times N$ and use the same location ordering as the standardized table and
+shapefile. GRID may construct regular squares or hexagons, or use
+\texttt{cell\_geometry: original}. In the latter case each supplied source
+polygon is retained as a model location, the cell-size parameter is ignored,
+and the same polygons determine routing centroids, MATLAB locations, shock
+interpolation targets, and reporting maps. A configured unique source ID may
+be retained as the canonical location identifier.
+
+\section{Economic environment and assumptions}
+Locations are indexed by residence $i$ and workplace $j$. The model has the
+following maintained assumptions.
+\begin{enumerate}[label=\textbf{A\arabic*.}]
+\item There is a continuum of workers. Each supplies one unit of labour and
+chooses a residence--workplace pair.
+\item Workers have Frechet-distributed idiosyncratic preferences. This produces
+a smooth gravity equation for commuting and a closed-form expected-utility
+index.
+\item Commuting reduces the effective wage exponentially in bilateral travel
+time. Travel times are measured in the unit used to calibrate $\kappa$.
+\item A homogeneous, freely traded final good is the numeraire. Firms are
+perfectly competitive and use labour and commercial floor space under constant
+returns to scale.
+\item Residents spend share $\beta$ of income on the numeraire and share
+$1-\beta$ on residential floor space.
+\item Geographic land is fixed. A reduced-form developer technology converts
+land and the non-land development input into floor space.
+\item Productivity and amenities may depend on surrounding employment and
+population densities. Setting the corresponding spillover elasticity to zero
+turns that feedback off.
+\item In a closed city total population is fixed and utility adjusts. In an
+open city utility is fixed at the outside option and total population adjusts.
+\item The baseline inversion is conditional on parameter values and observed
+quantities and rents. It is an exact model-based quantification, not an
+estimation exercise.
+\end{enumerate}
+
+\section{Workers, commuting, and welfare}
+Let $B_i$ be total amenity, $Q_i$ residential floor-space rent, $w_j$ the wage,
+and $\tau_{ij}$ travel time. Define bilateral attractiveness
+\begin{equation}
+ \Phi_{ij}=
+ e^{-\epsilon\kappa\tau_{ij}}
+ B_i^\epsilon Q_i^{-(1-\beta)\epsilon}w_j^\epsilon,
+ \qquad
+ \Phi=\sum_i\sum_j\Phi_{ij}.                         \label{eq:phi}
+\end{equation}
+The unconditional probability of residing in $i$ and working in $j$ is
+\begin{equation}
+ \pi_{ij}=\frac{\Phi_{ij}}{\Phi}.                     \label{eq:pi}
+\end{equation}
+For total city population $H$,
+\begin{equation}
+ H_{Ri}=H\sum_j\pi_{ij},\qquad
+ H_{Mj}=H\sum_i\pi_{ij},\qquad
+ \sum_iH_{Ri}=\sum_jH_{Mj}=H.                        \label{eq:margins}
+\end{equation}
+Conditional commuting probabilities and resident income are
+\begin{equation}
+ \pi_{j|i}=\frac{\Phi_{ij}}{\sum_s\Phi_{is}},\qquad
+ \bar w_i=\sum_j\pi_{j|i}w_j,\qquad
+ v_i=H_{Ri}\bar w_i.                                  \label{eq:income}
+\end{equation}
+Thus $v_i$ is total labour income of residents of $i$, which is the object used
+in residential floor-space demand. Expected utility is
+\begin{equation}
+ U=\gamma\Phi^{1/\epsilon},\qquad
+ \gamma=\Gamma\!\left(\frac{\epsilon-1}{\epsilon}\right). \label{eq:utility}
+\end{equation}
+
+\section{Production, floor space, and land}
+Total floor space in location $i$ is $L_i$. Share $\theta_i$ is commercial, so
+$L_{Mi}=\theta_iL_i$ and $L_{Ri}=(1-\theta_i)L_i$. Production is
+\begin{equation}
+ Y_i=A_iH_{Mi}^{\alpha}L_{Mi}^{\,1-\alpha}.           \label{eq:production}
+\end{equation}
+Perfect competition gives the labour and commercial-floor-space conditions
+\begin{equation}
+ w_i=\frac{\alpha Y_i}{H_{Mi}},\qquad
+ q_i=\frac{(1-\alpha)Y_i}{L_{Mi}},                    \label{eq:firmfoc}
+\end{equation}
+where $q_i$ is commercial floor-space rent. Residential market clearing is
+\begin{equation}
+ Q_iL_{Ri}=(1-\beta)v_i,                              \label{eq:resclear}
+\end{equation}
+where $Q_i$ is residential floor-space rent.
+
+Let $K_i$ denote geographic land and let $\mu$ be the non-land share in
+development. The reduced-form floor-space stock is
+\begin{equation}
+ L_i=\varphi_iK_i^{\,1-\mu}.                          \label{eq:floorsupply}
+\end{equation}
+The configured values are $\mu=0.75$ and $1-\mu=0.25$. Hence land enters
+\eqref{eq:floorsupply} with exponent $0.25$, not $0.75$.
+
+\subsection{Mixed and specialized locations}
+The active support of productivity and amenity determines whether a location
+can host firms, residents, or both. For a mixed location, no arbitrage between
+uses implies
+\begin{equation}
+ q_i=Q_i=r_i^F,                                       \label{eq:noarb}
+\end{equation}
+and combining \eqref{eq:firmfoc}--\eqref{eq:resclear} yields
+\begin{align}
+ r_i^F&=\frac{(1-\alpha)Y_i+(1-\beta)v_i}{L_i},       \label{eq:mixedrent}\\
+ \theta_i&=\frac{(1-\alpha)Y_i}{r_i^FL_i}.            \label{eq:mixedshare}
+\end{align}
+In a commercially specialized location $\theta_i=1$ and the commercial
+condition determines $q_i$. In a residentially specialized location
+$\theta_i=0$ and the residential condition determines $Q_i$.
+
+\subsection{One observed rent and two endogenous bid rents}
+The standardized input supplies one common baseline floor-space rent,
+$R_i^{obs}$. The inversion uses this same observation in both the commercial
+and residential demand equations. It is neither land rent nor a regulatory
+wedge. This is a transparent maintained restriction on baseline data.
+
+The counterfactual model nevertheless retains two endogenous bid rents:
+commercial $q_i$ and residential $Q_i$. Economic demand differs across the two
+uses. In a mixed-use location the no-arbitrage condition \eqref{eq:noarb}
+imposes equality; at a specialized corner only the active use's bid rent clears
+its market, so $q_i$ and $Q_i$ need not coincide. Annual land rent
+$\Rland_i$ remains the separate developer residual in \eqref{eq:landrent}.
+
+\subsection{Floor-space rents, annual land rent, and land value}
+The model contains three distinct concepts:
+\begin{enumerate}
+\item $q_i$: price per unit of commercial floor space;
+\item $Q_i$: price per unit of residential floor space;
+\item $\Rland_i$: annual rent paid to the fixed factor land.
+\end{enumerate}
+Under the constant-returns developer problem, Euler's theorem assigns the land
+share $1-\mu$ of gross floor-space revenue to land:
+\begin{equation}
+ \boxed{\Rland_i=(1-\mu)
+ \left(q_iL_{Mi}+Q_iL_{Ri}\right).}                  \label{eq:landrent}
+\end{equation}
+This is the object computed by
+\texttt{qt\_write\_closure\_results.m} and reported as
+\texttt{TotalLandRentPct}. It is a \emph{derived endogenous equilibrium
+outcome}: rents and land-use shares change in equilibrium, and
+\eqref{eq:landrent} maps those outcomes into the developer residual. It is not
+a floor-space rent and is not their unweighted sum. A capitalized land asset
+value would additionally require a capitalization rate (and expectations about
+future rents), so the toolkit does not label annual land rent as land value.
+
+Aggregate annual land rent is
+\begin{equation}
+ \Rland=\sum_i\Rland_i,\qquad
+ \%\Delta\Rland=100\left(\frac{\Rland^1}{\Rland^0}-1\right). \label{eq:aggland}
+\end{equation}
+
+\section{Endogenous productivity and amenity}
+Employment-density and residential-density spillovers are
+\begin{align}
+ \Upsilon_i&=\sum_s e^{-\delta\tau_{is}}\frac{H_{Ms}}{K_s},
+ & A_i&=a_i\Upsilon_i^\lambda,\\
+ \Omega_i&=\sum_r e^{-\rho\tau_{ir}}\frac{H_{Rr}}{K_r},
+ & B_i&=b_i\Omega_i^\eta.                             \label{eq:spillovers}
+\end{align}
+Here $a_i$ and $b_i$ are fundamentals held fixed across a pure transport
+counterfactual; $A_i$ and $B_i$ are total productivity and amenity, which
+respond endogenously. Setting $\lambda=0$ or $\eta=0$ makes the corresponding
+total object equal to its fundamental.
+
+\section{Objects and their status}
+\small
+\begin{longtable}{P{2.8cm}P{10.7cm}}
+\caption{Structural, supplied, inverted, and endogenous objects}\label{tab:objects}\\
+\toprule Object & Meaning and status\\ \midrule
+\endfirsthead
+\multicolumn{2}{l}{\emph{Table \ref{tab:objects} continued}}\\
+\toprule Object & Meaning and status\\ \midrule
+\endhead
+\multicolumn{2}{l}{\textbf{Parameters fixed by the user}}\\
+$\alpha,\beta$ & Labour share in production and numeraire-consumption share.\\
+$\epsilon,\kappa$ & Commuting-choice elasticity and time-cost coefficient.\\
+$\lambda,\delta$ & Productivity-spillover elasticity and spatial decay.\\
+$\eta,\rho$ & Amenity-spillover elasticity and spatial decay.\\
+$\mu,1-\mu$ & Non-land and land shares in development.\\
+\addlinespace
+\multicolumn{2}{l}{\textbf{Baseline data or externally supplied objects}}\\
+$K_i$ & Geographic land area.\\
+$H_{Ri}^{obs}$ & Resident population.\\
+$H_{Mi}^{obs}$ & Workplace employment, rescaled to equal population in aggregate.\\
+$R_i^{obs}$ & One common observed baseline floor-space rent, used in both inversion conditions.\\
+$\tau^0,\tau^1$ & Baseline and counterfactual bilateral travel times.\\
+\addlinespace
+\multicolumn{2}{l}{\textbf{Primitives recovered by baseline inversion}}\\
+$a_i,b_i$ & Productivity and amenity fundamentals net of endogenous spillovers.\\
+$\varphi_i$ & Structural-density/floor-supply fundamental.\\
+$\bar U$ & Baseline utility used as outside utility in the open-city model.\\
+\addlinespace
+\multicolumn{2}{l}{\textbf{Adjusted baseline objects recovered during inversion}}\\
+$A_i,B_i$ & Total productivity and amenity that rationalize the two employment margins.\\
+$w_i,\bar w_i,v_i$ & Workplace wage, expected wage, and resident total income.\\
+$L_i,L_{Mi},L_{Ri},\theta_i$ & Total and use-specific floor space and commercial share.\\
+\addlinespace
+\multicolumn{2}{l}{\textbf{Endogenous counterfactual equilibrium outcomes}}\\
+$\pi_{ij},H_{Ri},H_{Mi}$ & Commuting probabilities and residential/workplace employment.\\
+$A_i,B_i,Y_i$ & Total productivity, total amenity, and output.\\
+$w_i,q_i,Q_i,\theta_i$ & Wage, two endogenous use-specific bid rents, and commercial floor-space share.\\
+$U,H$ & Utility and population; which is fixed depends on closure.\\
+$\Rland_i,\Rland$ & Annual local and aggregate land rent from the developer residual.\\
+\bottomrule
+\end{longtable}
+\normalsize
+
+\section{Baseline inversion}
+The inversion conditions on
+$\{R^{obs},H_M^{obs},H_R^{obs},K,\tau^0\}$ and the parameter vector.
+Employment is first rescaled so
+$\sum_iH_{Mi}^{obs}=\sum_iH_{Ri}^{obs}=H$.
+
+\subsection{Adjusted productivity, amenity, and wages}
+Combining the firm's two first-order conditions eliminates commercial floor
+space and gives the wage equation implemented in \texttt{cmodexog.m}:
+\begin{equation}
+ w_i=\alpha A_i^{1/\alpha}
+ \left(\frac{1-\alpha}{R_i^{obs}}\right)^{(1-\alpha)/\alpha}. \label{eq:invwage}
+\end{equation}
+Given guesses for $A$ and $B$, equations
+\eqref{eq:phi}--\eqref{eq:margins} produce predicted employment margins
+$\widehat H_M$ and $\widehat H_R$. The multiplicative inversion mappings are
+\begin{align}
+ A_i^{*}&=A_i
+ \left(\frac{H_{Mi}^{obs}}{\widehat H_{Mi}}\right)^{1/\epsilon},&
+ B_i^{*}&=B_i
+ \left(\frac{H_{Ri}^{obs}}{\widehat H_{Ri}}\right)^{1/\epsilon}. \label{eq:abupdate}
+\end{align}
+The code damps these mappings, normalizes the geometric mean of positive $A_i$
+to one, and rescales $B$ so $\Phi=H$. At convergence,
+\begin{equation}
+ \widehat H_{Mi}=H_{Mi}^{obs},\qquad
+ \widehat H_{Ri}=H_{Ri}^{obs}\quad\forall i.            \label{eq:invmargins}
+\end{equation}
+The productivity normalization fixes the nominal scale; amenity scaling adopts
+the ARSW utility normalization.
+
+\subsection{Floor space and structural density}
+After convergence, all remaining floor-space objects are recovered directly:
+\begin{align}
+ L_{Mi}&=\left(\frac{(1-\alpha)A_i}{R_i^{obs}}\right)^{1/\alpha}H_{Mi}^{obs},
+                                                               \label{eq:invLM}\\
+ L_{Ri}&=\frac{(1-\beta)v_i}{R_i^{obs}},                        \label{eq:invLR}\\
+ L_i&=L_{Mi}+L_{Ri},\qquad
+ \theta_i=\frac{L_{Mi}}{L_i},                                  \label{eq:invtheta}\\
+ \varphi_i&=\frac{L_i}{K_i^{\,1-\mu}}.                          \label{eq:invvarphi}
+\end{align}
+The same $R_i^{obs}$ enters both use-specific equations, but it must not be
+confused with land rent. This is the toolkit's maintained one-rent baseline
+restriction; it does not impose equal commercial and residential demand.
+
+\subsection{Productivity and amenity fundamentals}
+Using observed employment densities and baseline travel times, compute
+$\Upsilon_i^0$ and $\Omega_i^0$ from \eqref{eq:spillovers}. The fundamentals
+held fixed in a pure transport experiment are
+\begin{equation}
+ a_i=\frac{A_i}{(\Upsilon_i^0)^\lambda},\qquad
+ b_i=\frac{B_i}{(\Omega_i^0)^\eta}.                        \label{eq:invfund}
+\end{equation}
+Finally, baseline outside utility follows from \eqref{eq:utility}:
+\begin{equation}
+ \bar U=\gamma(\Phi^0)^{1/\epsilon}.                       \label{eq:invU}
+\end{equation}
+Equations \eqref{eq:invwage}, \eqref{eq:income},
+\eqref{eq:invLM}--\eqref{eq:invU} cover every primitive and adjusted object
+saved by the inversion.
+
+\begin{algorithm}[ht]
+\caption{Baseline inversion}
+\begin{algorithmic}[1]
+\Require $R^{obs},H_M^{obs},H_R^{obs},K,\tau^0$ and parameters
+\State Rescale employment so both observed margins sum to $H$
+\State Initialize positive $A$ and $B$
+\While{either employment margin fails \eqref{eq:invmargins}}
+ \State Compute wages from \eqref{eq:invwage}
+ \State Compute $\Phi_{ij}$, $\pi_{ij}$, $\widehat H_M$, and $\widehat H_R$
+ \State Update $A$ and $B$ using \eqref{eq:abupdate} and damping
+ \State Normalize $A$ and scale $B$ consistently with the utility normalization
+\EndWhile
+\State Compute conditional commuting probabilities and resident income
+\State Recover $L_M,L_R,L,\theta,\varphi$ from \eqref{eq:invLM}--\eqref{eq:invvarphi}
+\State Recover $a,b$ from \eqref{eq:invfund} and $\bar U$ from \eqref{eq:invU}
+\Ensure Baseline primitives, adjusted objects, outcomes, and diagnostics
+\end{algorithmic}
+\end{algorithm}
+
+\section{Counterfactual equilibrium}
+A pure transport experiment changes $\tau^0$ to $\tau^1$ while holding
+$\{a,b,\varphi,K\}$ and all parameters fixed. The user may instead combine the
+transport change with multiplicative local changes
+$\widehat a_i$, $\widehat b_i$, and $\widehat\varphi_i$:
+\begin{equation}
+ a_i^1=a_i^0\widehat a_i,\qquad
+ b_i^1=b_i^0\widehat b_i,\qquad
+ \varphi_i^1=\varphi_i^0\widehat\varphi_i.             \label{eq:primitivehats}
+\end{equation}
+A hat of one leaves that fundamental unchanged; for example, $1.10$ raises it
+by ten percent. Conditional on target variables, equations
+\eqref{eq:phi}--\eqref{eq:spillovers} explicitly construct all other outcomes.
+
+The optional user input is a polygon shapefile or GeoPackage in arbitrary
+spatial units. It need not match the endogenous model grid. Let $G_i$ denote a
+target cell, $P_s$ a source policy polygon, and $|\cdot|$ polygon area in a
+projected coordinate system. GRID maps any source hat $\widehat x_s$ into
+\begin{equation}
+ \widehat x_i=1+\sum_s
+ \frac{|G_i\cap P_s|}{|G_i|}(\widehat x_s-1).          \label{eq:shockinterpolation}
+\end{equation}
+Uncovered target area therefore contributes the neutral value one. When source
+polygons form a complete non-overlapping partition, equation
+\eqref{eq:shockinterpolation} is the standard intersection-area-weighted mean.
+Overlapping policy polygons are rejected to prevent double counting. The
+standardized model-order table contains \texttt{productivity\_hat},
+\texttt{amenity\_hat}, and \texttt{structural\_density\_hat}. Before MATLAB
+runs, the reporting layer maps all three interpolated percentage changes,
+overlays the original policy-polygon boundaries and transport innovation, and
+saves both PDF and PNG versions. This provides a direct visual check of
+\eqref{eq:shockinterpolation} and the transport intervention. If no policy
+geography is configured, all three hats are one.
+
+The current one-rent specification has no regulatory-wedge primitive; a wedge
+shock is therefore rejected rather than silently ignored. Adding one would
+require specifying how the wedge enters developer returns or land-use arbitrage
+and adding the corresponding inversion and equilibrium conditions.
+
+\subsection{Equations and unknowns}
+For $N$ active locations, the closed-city fixed point targets
+\begin{equation}
+ \underbrace{\{w_i,q_i,Q_i,\theta_i\}_{i=1}^N}_{4N\ {\rm unknowns}}. \label{eq:unknowns}
+\end{equation}
+There are exactly $4N$ corresponding equilibrium conditions:
+\begin{enumerate}
+\item $N$ labour first-order conditions,
+$w_i=\alpha Y_i/H_{Mi}$;
+\item $N$ commercial-rent conditions, using
+$q_i=(1-\alpha)Y_i/(\theta_iL_i)$ in commercial locations and
+\eqref{eq:mixedrent} in mixed locations;
+\item $N$ residential-rent conditions, using
+$Q_i=(1-\beta)v_i/[(1-\theta_i)L_i]$ in residential locations and
+\eqref{eq:mixedrent} in mixed locations;
+\item $N$ land-use conditions: \eqref{eq:mixedshare} in mixed locations and
+the appropriate specialization restriction $\theta_i\in\{0,1\}$ elsewhere.
+\end{enumerate}
+The commuting probabilities, employment margins, $A$, $B$, $Y$, and $v$ are
+not omitted equations. They are explicit mappings from the four target vectors
+through \eqref{eq:phi}--\eqref{eq:spillovers}; equivalently, one could list
+them as additional unknowns together with the same number of defining
+equations.
+
+For the open city, total population $H$ is an additional scalar unknown and
+\begin{equation}
+ U=\bar U                                                     \label{eq:opencondition}
+\end{equation}
+is the additional scalar equation. The open-city system therefore has
+$4N+1$ target unknowns and $4N+1$ target equations.
+
+\subsection{Closed city}
+The closed city fixes $H=H^0$. The equilibrium mapping is
+\begin{align}
+ L_i&=\varphi_iK_i^{1-\mu},\\
+ \pi_{ij}&=\pi_{ij}(B,Q,w,\tau),&
+ (H_R,H_M)&=H\,\mathrm{margins}(\pi),\\
+ A_i&=a_i\Upsilon_i(H_M,\tau)^\lambda,&
+ B_i&=b_i\Omega_i(H_R,\tau)^\eta,\\
+ Y_i&=A_iH_{Mi}^{\alpha}(\theta_iL_i)^{1-\alpha},&
+ v_i&=H_{Ri}\sum_j\pi_{j|i}w_j,
+\end{align}
+followed by the $4N$ target conditions above. Utility from
+\eqref{eq:utility} is the aggregate welfare outcome.
+
+\begin{algorithm}[ht]
+\caption{Closed-city equilibrium}
+\begin{algorithmic}[1]
+\Require $a,b,\varphi,K,\tau,H$ and parameters
+\State Compute $L=\varphi K^{1-\mu}$ and initialize $w,q,Q,\theta$
+\While{any target vector has not converged}
+ \State Construct $A$ and $B$ from current employment densities
+ \State Construct commuting probabilities and allocate fixed $H$
+ \State Recompute $A,B,Y$, conditional probabilities, and $v$
+ \State Predict $w,q,Q,\theta$ from the $4N$ equilibrium conditions
+ \State Damp each target toward its prediction and record all gaps
+\EndWhile
+\State Compute $U$ and annual land rent using \eqref{eq:landrent}
+\Ensure Equilibrium with fixed $H$ and endogenous $U$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Open city}
+The open city fixes $\bar U$ at the inverted baseline level. In addition to the
+closed-city mapping, the code uses
+\begin{equation}
+ H^{*}=H\left(\frac{U}{\bar U}\right)^\epsilon              \label{eq:Hupdate}
+\end{equation}
+and damps population toward $H^*$. If current city utility exceeds the outside
+option, population rises. Convergence requires both all local target equations
+and \eqref{eq:opencondition}.
+
+\begin{algorithm}[ht]
+\caption{Open-city equilibrium}
+\begin{algorithmic}[1]
+\Require $a,b,\varphi,K,\tau,\bar U$ and parameters
+\State Initialize $H,w,q,Q,\theta$
+\While{a local target fails or $U\ne\bar U$}
+ \State Execute the closed-city equilibrium mapping for current $H$
+ \State Compute $U$ and predict population using \eqref{eq:Hupdate}
+ \State Apply a damped population update
+\EndWhile
+\State Compute annual land rent using \eqref{eq:landrent}
+\Ensure Equilibrium with fixed $\bar U$ and endogenous $H$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Parameter choices}
+\begin{table}[ht]
+\centering\small
+\caption{Current demonstration defaults in \texttt{project\_config.yaml}}
+\begin{tabular}{llll}
+\toprule Parameter & Configuration key & Default & Interpretation\\
+\midrule
+$\alpha$ & \texttt{production\_share\_labor} & 0.80 & Labour share in production\\
+$\beta$ & \texttt{expenditure\_share\_consumption} & 0.75 & Numeraire expenditure share\\
+$\epsilon$ & \texttt{commuting\_elasticity} & 6.6941 & Frechet shape/commuting elasticity\\
+$\kappa$ & \texttt{commuting\_time\_coefficient} & 0.014744 & Cost per travel-time unit\\
+$\lambda$ & \texttt{productivity\_spillover} & 0.0710 & Productivity feedback\\
+$\delta$ & \texttt{productivity\_spatial\_decay} & 0.3617 & Productivity decay per time unit\\
+$\eta$ & \texttt{amenity\_spillover} & 0.1553 & Amenity feedback\\
+$\rho$ & \texttt{amenity\_spatial\_decay} & 0.7595 & Amenity decay per time unit\\
+$\mu$ & \texttt{construction\_capital\_share} & 0.75 & Non-land development share\\
+$1-\mu$ & \texttt{construction\_land\_share} & 0.25 & Land share\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These defaults reproduce the ARSW-style demonstration parameterization; they
+are not universal constants. For a new city, the user should document the
+source and empirical setting for every parameter. In particular:
+\begin{itemize}
+\item $\kappa$, $\delta$, and $\rho$ must be compatible with the unit of the
+travel-time matrices; changing minutes to hours without rescaling them changes
+the model.
+\item $\epsilon$ governs both sorting responses and the open-city population
+update, so welfare and migration results can be sensitive to it.
+\item $\lambda$ and $\eta$ govern amplification through endogenous productivity
+and amenity. Zero is the transparent no-spillover sensitivity case.
+\item $\alpha$, $\beta$, and $1-\mu$ determine the incidence of revenue across
+labour, floor-space uses, and land. In particular, annual land rent in
+\eqref{eq:landrent} uses $1-\mu=0.25$.
+\item Numerical tolerances and damping weights are algorithmic controls, not
+economic parameters; changing them should affect convergence, not the
+converged equilibrium.
+\end{itemize}
+
+\section{Counterfactual outputs and validation}
+For each requested closure, the toolkit solves both $\tau^0$ and $\tau^1$,
+computes block-level percentage changes, and reports aggregate utility,
+population, GDP, and annual land rent. The main aggregate table uses
+\begin{align}
+ \%\Delta GDP &=100\left(\frac{\sum_iY_i^1}{\sum_iY_i^0}-1\right),\\
+ \%\Delta\Rland&=100\left(
+ \frac{\sum_i(1-\mu)[q_i^1\theta_i^1L_i+
+ Q_i^1(1-\theta_i^1)L_i]}
+ {\sum_i(1-\mu)[q_i^0\theta_i^0L_i+
+ Q_i^0(1-\theta_i^0)L_i]}-1\right).                    \label{eq:reportland}
+\end{align}
+For a pure transport counterfactual $\varphi$ and $K$ are fixed, hence $L$ is
+fixed, but $q$, $Q$, and $\theta$ need not be. Consequently, percentage changes
+in annual land rent are not generally equal to changes in either floor-space
+rent.
+
+Before interpretation, users should verify:
+\begin{enumerate}
+\item location IDs and matrix ordering are identical;
+\item employment and population aggregate to the same number;
+\item inversion reproduces both observed employment margins;
+\item all fixed-point gaps satisfy the configured tolerance;
+\item baseline equilibrium reproduction is satisfactory;
+\item land-rent output is constructed from \eqref{eq:landrent}, not from an
+input field labelled land value.
+\end{enumerate}
+
+\section{Code correspondence}
+\begin{longtable}{P{4.3cm}P{9.2cm}}
+\toprule File & Economic role\\ \midrule
+\texttt{invert\_baseline.m} & Commented baseline-inversion entry script.\\
+\texttt{qt\_invert\_baseline.m} & Passes the single observed rent into both use-specific inversion conditions.\\
+\texttt{cmodexog.m} & Inverts $A,B,w$ and commuting probabilities jointly.\\
+\texttt{cdensityE.m} & Inverts $L_M,L_R,L,\theta,\varphi$.\\
+\texttt{cprod.m}, \texttt{cres.m} & Recover $a$ and $b$ from total productivity and amenity.\\
+\texttt{ubar.m} & Computes baseline expected utility $\bar U$.\\
+\texttt{smodendog.m} & Solves the closed-city $4N$-equation target system.\\
+\texttt{ussmodendog.m} & Adds population and utility clearing for the open city.\\
+\texttt{qt\_write\_closure\_results.m} & Reports local outcomes and annual land rent.\\
+\bottomrule
+\end{longtable}
+
+\section{Interpretation and limitations}
+Results are comparative statics conditional on the model, parameters, baseline
+data, and travel times. Wages are always recovered inside the model inversion;
+they are never generated from an auxiliary employment elasticity. Synthetic
+rents are useful for testing the pipeline but not for policy valuation. Observed rents require compatible
+units, concepts, and dates. Annual land rent is a model-implied flow; converting
+it to a land asset value requires an explicit discounting and expectations
+model. Open-city utility is fixed by construction, so population rather than
+utility is its aggregate adjustment margin.
+
+\section*{Reference}
+Ahlfeldt, G. M., Redding, S. J., Sturm, D. M., and Wolf, N. (2015).
+``The Economics of Density: Evidence from the Berlin Wall.''
+\emph{Econometrica}, 83(6), 2127--2189.
+\href{https://doi.org/10.3982/ECTA10876}{doi:10.3982/ECTA10876}.
+\end{document}

@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use QUETRANSPORT, please cite this software and the underlying ARSW paper."
+title: "QUETRANSPORT: A Toolkit for Quantitative Transport Appraisal in Spatial Equilibrium"
+type: software
+authors:
+  - family-names: Ahlfeldt
+    given-names: Gabriel M.
+version: 0.1.0
+date-released: 2026-08-24
+references:
+  - type: article
+    title: "The Economics of Density: Evidence from the Berlin Wall"
+    authors:
+      - family-names: Ahlfeldt
+        given-names: Gabriel M.
+      - family-names: Redding
+        given-names: Stephen J.
+      - family-names: Sturm
+        given-names: Daniel M.
+      - family-names: Wolf
+        given-names: Nikolaus
+    journal: Econometrica
+    volume: 83
+    issue: 6
+    year: 2015
+    start: 2127
+    end: 2189
+    doi: 10.3982/ECTA10876

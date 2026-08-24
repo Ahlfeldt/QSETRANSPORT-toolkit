@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# MATLAB
+*.asv
+*.m~
+*.mex*
+slprj/
+
+# LaTeX auxiliaries; retain source and released PDF
+docs/*.aux
+docs/*.log
+docs/*.out
+docs/*.toc
+docs/*.synctex.gz
+docs/*.fls
+docs/*.fdb_latexmk
+
+# Editors and operating systems
+.idea/
+.vscode/
+.spyproject/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# User data and generated products
+input/raw/**
+input/standardized/**
+outputs/**
+
+# Retain directory skeletons
+!input/raw/**/.gitkeep
+!input/standardized/**/.gitkeep
+!outputs/**/.gitkeep
+
+# GIS working files
+*.shp.xml
+*.qix
+*.sbn
+*.sbx
+*.gpkg-wal
+*.gpkg-shm

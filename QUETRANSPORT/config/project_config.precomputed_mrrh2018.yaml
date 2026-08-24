@@ -1,0 +1,85 @@
+# Working example based on the existing MRRH2018 GRID and TTMATRIX outputs.
+project:
+  name: mrrh2018_grid_hsr_example
+  run_grid: true
+  run_ttmatrix: true
+  run_inversion: true
+  run_simulation: true
+
+paths:
+  source_grid_csv: A:/Research/MRRH2018-toolkit/GRID/GRID-toolkit/output/grid-data.csv
+  source_grid_geometry: A:/Research/MRRH2018-toolkit/GRID/GRID-toolkit/output/grid-data.shp
+  baseline_matrix: A:/Research/MRRH2018-toolkit/GRID/TTMATRIX-toolkit/output/TTMATRIX-HSR-noHSR.csv
+  counterfactual_matrix: A:/Research/MRRH2018-toolkit/GRID/TTMATRIX-toolkit/output/TTMATRIX-HSR-HSR.csv
+  standardized_input: input/standardized
+  output: outputs
+
+grid:
+  id_variable: cell_id
+  geometry_id_variable: cell_id
+  population_variable: pop
+  employment_variable: emp
+  # MRRH has one synthetic rent. Mapping it to both fields makes this
+  # example compatible while retaining the general two-price data contract.
+  rent_variable: rent
+  target_crs: EPSG:4326
+  missing_value_rule: stop
+
+ttmatrix:
+  # Read the two existing matrix files named under paths above.
+  source: user_provided
+  time_unit: minutes
+  intrazonal_rule: configured_constant
+  intrazonal_minutes: 1.0
+  unreachable_rule: stop
+
+model:
+  city_closure: both
+  expenditure_share_consumption: 0.75
+  production_share_labor: 0.80
+  commuting_elasticity: 6.6941
+  commuting_time_coefficient: 0.014744
+  productivity_spillover: 0.0710
+  productivity_spatial_decay: 0.3617
+  amenity_spillover: 0.1553
+  amenity_spatial_decay: 0.7595
+  construction_capital_share: 0.75
+  construction_land_share: 0.25
+  outside_utility: baseline
+
+numerics:
+  maximum_inversion_passes: 10
+  tolerance_inversion: 1.0e-6
+  tolerance_equilibrium: 1.0e-6
+  maximum_iterations: 10000
+  damping_inversion: 0.10
+  damping_equilibrium: 0.10
+  print_every: 25
+  save_convergence_trace: true
+
+scenario:
+  # OPTIONAL. Leave null for a pure transport experiment: all fundamental hats
+  # then equal 1, so the inverted baseline primitives remain unchanged.
+  #
+  # Otherwise point to a polygon shapefile (or GeoPackage) containing the policy
+  # changes in any spatial units. GRID intersects those polygons with the model
+  # cells and area-interpolates each primitive hat. Uncovered cell area receives
+  # the neutral value 1.00. The source polygons must not overlap one another.
+  shocks_shapefile: null
+  # Example: input/raw/shocks/primitive_changes.shp
+  shocks_layer: null                    # Optional GeoPackage layer; ignored for .shp.
+  analysis_crs: null                    # null selects a suitable projected metre CRS.
+
+  # SOURCE FIELD NAMES ------------------------------------------------------
+  # These are deliberately short enough for the shapefile 10-character limit.
+  # Set a field to null when that primitive does not change anywhere.
+  # Values are multiplicative hats: 1.10 = +10%, 0.90 = -10%, 1.00 = unchanged.
+  productivity_hat_variable: prod_hat
+  amenity_hat_variable: amen_hat
+  structural_density_hat_variable: dens_hat
+
+reporting:
+  make_maps: false
+  save_csv: true
+  save_mat: true
+  benefit_cost_analysis: false
