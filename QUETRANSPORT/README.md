@@ -158,6 +158,9 @@ For equations, unknown/equation counting, inversion formulas, closures, land-ren
 
 ## Outputs
 
+See the [output showcase](SHOWCASE/) for representative maps and an aggregate
+results table from an illustrative application.
+
 | Folder | Contents |
 |---|---|
 | `outputs/diagnostics/` | resolved configuration, validation and convergence |

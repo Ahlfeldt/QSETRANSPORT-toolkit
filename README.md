@@ -123,9 +123,18 @@ See the [QUETRANSPORT requirements](QUETRANSPORT/README.md#requirements) for
 installation commands and version guidance. Future toolkits may have different
 software requirements, which will be documented in their own subfolders.
 
+## See what QUETRANSPORT produces
+
+The [QUETRANSPORT showcase](QUETRANSPORT/SHOWCASE/) presents representative
+closed- and open-city maps together with an aggregate results table from one
+illustrative transport scenario. It demonstrates how the toolkit communicates
+spatial changes in population, wages, and output while distinguishing welfare
+and migration responses across city closures.
+
 ## Explore the available toolkit
 
 - [Open QUETRANSPORT](QUETRANSPORT/)
+- [View the output showcase](QUETRANSPORT/SHOWCASE/)
 - [Read the user guide](QUETRANSPORT/USER_GUIDE.md)
 - [Review the model codebook](QUETRANSPORT/docs/QUETRANSPORT_CODEBOOK.pdf)
 - [Check implementation status](QUETRANSPORT/STATUS.md)
