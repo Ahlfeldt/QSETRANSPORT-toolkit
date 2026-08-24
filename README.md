@@ -101,6 +101,28 @@ examples, documentation, and model families are in development.
 Results should always be interpreted alongside the selected assumptions, input
 validation, and numerical convergence diagnostics.
 
+## Software requirements
+
+Requirements depend on the toolkit being deployed. The currently available
+QUETRANSPORT toolkit requires:
+
+- **Python 3** for configuration, geospatial data preparation, travel-time
+  construction, validation, and mapping;
+- the Python scientific and geospatial stack listed in
+  [`QUETRANSPORT/requirements.txt`](QUETRANSPORT/requirements.txt), including
+  NumPy, pandas, GeoPandas, Pyogrio, Shapely, Matplotlib, SciPy, NetworkX, and
+  PyYAML; and
+- **MATLAB** for baseline inversion and spatial-equilibrium simulations.
+
+The current MATLAB implementation uses base MATLAB functionality. The Mapping,
+Optimization, Global Optimization, and Statistics and Machine Learning
+Toolboxes are not required by the present QUETRANSPORT code. Geospatial
+operations and map production are performed in Python.
+
+See the [QUETRANSPORT requirements](QUETRANSPORT/README.md#requirements) for
+installation commands and version guidance. Future toolkits may have different
+software requirements, which will be documented in their own subfolders.
+
 ## Explore the available toolkit
 
 - [Open QUETRANSPORT](QUETRANSPORT/)

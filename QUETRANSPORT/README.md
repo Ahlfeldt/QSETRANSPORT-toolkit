@@ -65,15 +65,51 @@ Copy the repository including `input/standardized/`, then run `src/matlab/script
 
 ## Requirements
 
-- Python 3 and [`requirements.txt`](requirements.txt);
-- MATLAB with `readtable` and `jsondecode`;
-- GIS inputs with a defined CRS;
-- enough memory and disk for two dense N-by-N matrices.
+### Python
+
+- **Python 3**; a current 64-bit release is recommended.
+- Python packages from [`requirements.txt`](requirements.txt): NumPy, pandas,
+  PyYAML, GeoPandas, Pyogrio, Shapely, Matplotlib, SciPy, NetworkX, and tqdm.
+- For development and tests, install the additional packages in
+  [`requirements-dev.txt`](requirements-dev.txt), including pytest.
+
+The Python environment performs all geospatial processing and map production.
+GeoPandas, Pyogrio, and Shapely provide the required GIS functionality; SciPy
+and NetworkX support distance and network calculations. A separate desktop GIS
+application is not required.
+
+### MATLAB
+
+- **MATLAB** with support for `string`, `jsondecode`, `readtable`, and
+  `writetable`; a current 64-bit release is recommended.
+- **No additional MATLAB toolboxes are required by the current code.** In
+  particular, QUETRANSPORT does not currently call the Mapping Toolbox,
+  Optimization Toolbox, Global Optimization Toolbox, or Statistics and Machine
+  Learning Toolbox. Spatial preparation and mapping take place in Python.
+
+The MATLAB version and supported operating-system matrix have not yet been
+formally validated across releases. If deploying the toolkit on a server, use a
+recent MATLAB release and first reproduce the baseline example before running a
+new application.
+
+### Data and hardware
+
+- Every GIS input must have a defined coordinate reference system (CRS).
+- The machine must have enough memory and disk space for two dense N-by-N
+  travel-time matrices and the equilibrium solver's intermediate arrays.
+- A working MATLAB command must be available at the path configured under
+  `project.matlab_command`.
 
 Manual Python installation:
 
 ```powershell
 python -m pip install -r requirements.txt
+```
+
+Development and testing installation:
+
+```powershell
+python -m pip install -r requirements-dev.txt
 ```
 
 ## Input contract
