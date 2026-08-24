@@ -1,4 +1,4 @@
-# QUETRANSPORT
+# QUETRANSPORT (beta)
 
 **A transparent, configurable toolkit for quantitative transport appraisal in spatial equilibrium.**
 
