@@ -82,9 +82,12 @@ Additional deployable toolkits and model families are planned.
 QSETRANSPORT brings together and extends ideas and components from existing
 research software, including:
 
-- the **ARSW2015 toolkit** for quantitative urban equilibrium;
-- the **GRID toolkit** for constructing consistent spatial data; and
-- the **TTMATRIX toolkit** for representing transport accessibility.
+- the [**ARSW2015 toolkit**](https://github.com/Ahlfeldt/ARSW2015-toolkit)
+  for quantitative urban equilibrium;
+- the [**GRID toolkit**](https://github.com/Ahlfeldt/GRID-toolkit) for
+  constructing consistent spatial data; and
+- the [**TTMATRIX toolkit**](https://github.com/Ahlfeldt/TTMATRIX-toolkit) for
+  representing transport accessibility.
 
 The project uses explicit data contracts between these components so that each
 stage can be inspected, tested, or replaced independently.
