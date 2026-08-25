@@ -65,25 +65,37 @@ forcing every application into one economic model.
 
 ### Quantitative urban models
 
-The first available deployable toolkit,
-[`QUETRANSPORT`](QUETRANSPORT/), evaluates transport improvements in a
-quantitative urban model with spatial equilibrium. It is one toolkit within the
-broader QSETRANSPORT collection. It:
+The first available deployable toolkit evaluates transport improvements in a
+quantitative urban model with spatial equilibrium. It is available in two
+closely aligned implementations:
 
-- prepares consistent model geography and variables;
-- constructs or validates baseline and counterfactual travel-time matrices;
-- recovers a model-consistent baseline spatial economy;
-- simulates open- and closed-city counterfactuals;
-- evaluates a fixed-distribution benchmark for baseline commuters;
-- compares results with and without endogenous productivity and amenity
+- [`QUETRANSPORT`](QUETRANSPORT/) uses Python for data preparation, travel
+  matrices, validation, and mapping, and MATLAB for inversion and equilibrium
+  simulation.
+- [`QUETRANSPORT-PythonOnly`](QUETRANSPORT-PythonOnly/) implements the complete
+  workflow—including inversion and equilibrium simulation—in Python and
+  requires no MATLAB installation.
+
+Both implementations:
+
+- prepare consistent model geography and variables;
+- construct or validate baseline and counterfactual travel-time matrices;
+- recover a model-consistent baseline spatial economy;
+- simulate open- and closed-city counterfactuals;
+- evaluate a fixed-distribution benchmark for baseline commuters;
+- compare results with and without endogenous productivity and amenity
   spillovers;
-- supports additional productivity, amenity, and density changes; and
-- produces diagnostics, local and aggregate results, and maps.
+- support additional productivity, amenity, and density changes; and
+- produce diagnostics, local and aggregate results, and maps.
 
 The economic core builds on the structure and numerical approach of Ahlfeldt,
 Redding, Sturm and Wolf (2015), generalized beyond Berlin-specific inputs and
-dimensions. See the [QUETRANSPORT documentation](QUETRANSPORT/README.md) for the
-model, inputs, installation instructions, examples, and complete workflow.
+dimensions. The Python-only implementation has been validated against the
+mixed Python–MATLAB implementation using identical raw and standardized inputs;
+aggregate and location-level results agree closely. See the
+[QUETRANSPORT documentation](QUETRANSPORT/README.md) or the
+[Python-only documentation](QUETRANSPORT-PythonOnly/README.md) for installation
+and workflow guidance.
 
 Additional deployable toolkits and model families are planned.
 
@@ -113,25 +125,30 @@ validation, and numerical convergence diagnostics.
 
 ## Software requirements
 
-Requirements depend on the toolkit being deployed. The currently available
-QUETRANSPORT toolkit requires:
+Requirements depend on the implementation selected. Both QUETRANSPORT variants
+require:
 
 - **Python 3** for configuration, geospatial data preparation, travel-time
   construction, validation, and mapping;
 - the Python scientific and geospatial stack listed in
   [`QUETRANSPORT/requirements.txt`](QUETRANSPORT/requirements.txt), including
   NumPy, pandas, GeoPandas, Pyogrio, Shapely, Matplotlib, SciPy, NetworkX, and
-  PyYAML; and
-- **MATLAB** for baseline inversion and spatial-equilibrium simulations.
+  PyYAML.
+
+The mixed [`QUETRANSPORT`](QUETRANSPORT/) implementation additionally requires
+**MATLAB** for baseline inversion and spatial-equilibrium simulations. The
+[`QUETRANSPORT-PythonOnly`](QUETRANSPORT-PythonOnly/) implementation performs
+those stages in NumPy/SciPy and requires **no MATLAB installation**.
 
 The current MATLAB implementation uses base MATLAB functionality. The Mapping,
 Optimization, Global Optimization, and Statistics and Machine Learning
 Toolboxes are not required by the present QUETRANSPORT code. Geospatial
 operations and map production are performed in Python.
 
-See the [QUETRANSPORT requirements](QUETRANSPORT/README.md#requirements) for
-installation commands and version guidance. Future toolkits may have different
-software requirements, which will be documented in their own subfolders.
+See the [QUETRANSPORT requirements](QUETRANSPORT/README.md#requirements) or
+[Python-only requirements](QUETRANSPORT-PythonOnly/README.md#requirements) for
+installation guidance. Future toolkits may have different requirements, which
+will be documented in their own subfolders.
 
 ## See what QUETRANSPORT produces
 
@@ -144,6 +161,7 @@ mean commutes and aggregate commuter-minutes.
 ## Explore the available toolkit
 
 - [Open QUETRANSPORT](QUETRANSPORT/)
+- [Open QUETRANSPORT-PythonOnly](QUETRANSPORT-PythonOnly/)
 - [View the output showcase](QUETRANSPORT/SHOWCASE/)
 - [Read the user guide](QUETRANSPORT/USER_GUIDE.md)
 - [Review the model codebook](QUETRANSPORT/docs/QUETRANSPORT_CODEBOOK.pdf)
