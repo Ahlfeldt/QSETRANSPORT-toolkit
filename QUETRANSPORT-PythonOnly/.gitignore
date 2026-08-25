@@ -28,8 +28,7 @@ docs/*.fdb_latexmk
 Thumbs.db
 desktop.ini
 
-# User data and generated products
-input/raw/**
+# Generated inputs and products
 input/standardized/**
 outputs/**
 
@@ -45,3 +44,6 @@ outputs/**
 *.sbx
 *.gpkg-wal
 *.gpkg-shm
+
+# Retain the spatial index supplied with the bundled reference network
+!input/raw/networks/counterfactual/CRL-line.qix

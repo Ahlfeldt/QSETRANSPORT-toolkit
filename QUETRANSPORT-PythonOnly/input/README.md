@@ -1,8 +1,11 @@
 # Input data
 
-User data are deliberately not committed to the repository.
+The raw inputs for the reference application are committed here so the
+Python-only and mixed Python–MATLAB toolkits can be run from the same source
+data and their outputs compared one-to-one. Generated standardized inputs are
+not committed; GRID and TTMATRIX recreate them during a normal run.
 
-For the default raw-to-results workflow, place files under:
+For another application, replace or add files under:
 
 ```text
 input/raw/grid/
