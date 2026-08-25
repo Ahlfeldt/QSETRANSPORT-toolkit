@@ -71,7 +71,11 @@ closely aligned implementations:
 
 - [`QUETRANSPORT`](QUETRANSPORT/) uses Python for data preparation, travel
   matrices, validation, and mapping, and MATLAB for inversion and equilibrium
-  simulation.
+  simulation. Its MATLAB scripts and functions remain close to the structure
+  and conventions of the
+  [ARSW2015 toolkit](https://github.com/Ahlfeldt/ARSW2015-toolkit). They will
+  therefore be familiar to existing ARSW2015 users, making the model easier to
+  understand, adapt, and extend.
 - [`QUETRANSPORT-PythonOnly`](QUETRANSPORT-PythonOnly/) implements the complete
   workflow—including inversion and equilibrium simulation—in Python and
   requires no MATLAB installation.
