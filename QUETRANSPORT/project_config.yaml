@@ -14,6 +14,7 @@ project:
   run_ttmatrix: true                    # Create baseline and policy travel matrices.
   run_inversion: true                   # Recover baseline spatial fundamentals.
   run_simulation: true                  # Solve the policy counterfactual.
+  run_no_spillover_comparison: true     # Re-invert and rerun all scenarios with spillovers switched off.
   matlab_command: matlab                # Command/path used to start a new MATLAB process.
 
 # =============================================================================

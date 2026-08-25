@@ -6,6 +6,7 @@
 \usepackage{amsmath,amssymb,booktabs,longtable,array}
 \usepackage{enumitem,xcolor,hyperref}
 \usepackage{algorithm,algpseudocode}
+\setlength{\emergencystretch}{2em}
 \hypersetup{colorlinks=true,linkcolor=blue!55!black,urlcolor=blue!55!black}
 \newcommand{\qt}{\textsc{QUETRANSPORT}}
 \newcommand{\Rland}{\mathcal{R}}
@@ -22,7 +23,9 @@
 model in Ahlfeldt, Redding, Sturm, and Wolf (2015, ARSW) for an arbitrary
 number of spatial units. It takes standardized spatial data and baseline and
 policy travel-time matrices, inverts local fundamentals conditional on chosen
-parameters, and solves closed- and open-city counterfactual equilibria. This
+parameters, solves closed- and open-city counterfactual equilibria, and
+evaluates a fixed-distribution accounting benchmark. Each is also evaluated
+after switching off productivity and amenity spillovers. This
 codebook states the assumptions and equations implemented in MATLAB, shows
 that the equilibrium has as many equations as unknown target variables,
 documents every inverted primitive, and distinguishes the common observed
@@ -45,8 +48,9 @@ The workflow has four economic steps:
 \item invert the baseline fundamentals that rationalize the observed allocation;
 \item change travel times and, optionally, productivity, amenity, or development
 fundamentals;
-\item solve the baseline and policy equilibria under the same closure and report
-local, aggregate, welfare, and land-rent effects.
+\item solve the baseline and policy equilibria under the same closure, evaluate
+the fixed-distribution benchmark, and report local, aggregate, welfare, and
+land-rent effects.
 \end{enumerate}
 Every location vector has length $N$. Both travel-time matrices are
 $N\times N$ and use the same location ordering as the standardized table and
@@ -406,6 +410,47 @@ For the open city, total population $H$ is an additional scalar unknown and
 is the additional scalar equation. The open-city system therefore has
 $4N+1$ target unknowns and $4N+1$ target equations.
 
+\subsection{Scenario design: what adjusts and what remains fixed}
+The toolkit reports three conceptually different responses to the same
+transport intervention. The closed and open cities are market-clearing spatial
+equilibria. The fixed-distribution case is a deliberately partial-equilibrium
+accounting benchmark. Table~\ref{tab:scenarios} summarizes their identifying
+restrictions.
+
+\begin{table}[ht]
+\centering\small
+\caption{Scenario comparison for a pure transport counterfactual}
+\label{tab:scenarios}
+\begin{tabular}{P{3.0cm}P{3.4cm}P{3.4cm}P{3.4cm}}
+\toprule
+ & Closed city & Open city & Fixed distribution\\
+\midrule
+City population & Fixed at baseline & Adjusts endogenously & Fixed at baseline\\
+Expected utility & Adjusts endogenously & Fixed at outside option & Accounting measure adjusts\\
+OD assignments & Adjust endogenously & Adjust endogenously & Fixed at baseline\\
+Local population and jobs & Adjust endogenously & Adjust endogenously & Fixed at baseline\\
+Wages and output & Adjust endogenously & Adjust endogenously & Recomputed at fixed inputs\\
+Floor-space rents and land use & Adjust endogenously & Adjust endogenously & Fixed at baseline\\
+Transport-mediated spillovers & Recomputed & Recomputed & Recomputed at fixed densities\\
+Market clearing & Yes & Yes & No: accounting benchmark\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The scenarios answer distinct questions. The \emph{closed city} asks how a
+fixed set of workers sorts across residences and workplaces once commuting
+conditions change. Utility is the natural worker-welfare statistic; GDP and
+land rent include the effects of relocation, rent adjustment, and endogenous
+spillovers. The \emph{open city} asks how many workers the city attracts when
+utility is tied to an outside option. Its near-zero reported utility change is
+therefore a model restriction, not an absence of benefits. Benefits are
+capitalized into population, output, rents, and land rent. The
+\emph{fixed-distribution} case asks what the original commuters would gain if
+they retained their baseline OD assignments and local density distributions.
+It includes direct commuting gains and travel-time-mediated productivity and
+amenity gains, but excludes relocation, resorting, migration, rent
+capitalization, and land-use adjustment.
+
 \subsection{Closed city}
 The closed city fixes $H=H^0$. The equilibrium mapping is
 \begin{align}
@@ -461,6 +506,146 @@ and \eqref{eq:opencondition}.
 \Ensure Equilibrium with fixed $\bar U$ and endogenous $H$
 \end{algorithmic}
 \end{algorithm}
+
+\subsection{Fixed-distribution accounting benchmark}
+\label{sec:fixeddistribution}
+The toolkit also reports a deliberately constrained benchmark in which the
+baseline residence--workplace assignment is held fixed. This exercise is
+designed to isolate gains available without spatial reallocation. It is
+\emph{not} a third market-clearing equilibrium closure.
+
+Let a superscript $F$ denote the fixed-distribution counterfactual. The
+benchmark holds fixed
+\begin{equation}
+ H^F=H^0,\qquad H_{Mi}^F=H_{Mi}^0,\qquad H_{Ri}^F=H_{Ri}^0,
+ \qquad \pi_{ij}^F=\pi_{ij}^0.                         \label{eq:fixedmargins}
+\end{equation}
+Thus neither the number of modeled workers, their workplace and residence
+distributions, nor their bilateral origin--destination assignments change.
+Residential and commercial floor-space rents and the commercial land-use share
+are also held at baseline values:
+\begin{equation}
+ Q_i^F=Q_i^0,\qquad q_i^F=q_i^0,\qquad \theta_i^F=\theta_i^0. \label{eq:fixedprices}
+\end{equation}
+For a pure transport experiment, $\varphi$ and $K$ are unchanged, so total,
+commercial, and residential floor space are fixed as well.
+
+Fixed local quantities do \emph{not} fix endogenous spillovers. Both effective
+density kernels depend on bilateral travel times. The benchmark therefore
+recomputes
+\begin{align}
+ \Upsilon_i^F&=\sum_s e^{-\delta\tau_{is}^1}
+                    \frac{H_{Ms}^0}{K_s},
+ &A_i^F&=a_i^1(\Upsilon_i^F)^\lambda,\\
+ \Omega_i^F&=\sum_r e^{-\rho\tau_{ir}^1}
+                    \frac{H_{Rr}^0}{K_r},
+ &B_i^F&=b_i^1(\Omega_i^F)^\eta.                      \label{eq:fixedspillovers}
+\end{align}
+Shorter travel times can consequently raise effective workplace and
+residential density even though the underlying employment and population
+vectors do not move.
+
+With workplace labour and commercial floor-space inputs fixed, counterfactual
+output and the competitive wage are
+\begin{equation}
+ Y_i^F=A_i^F(H_{Mi}^0)^\alpha(\theta_i^0L_i^0)^{1-\alpha},
+ \qquad w_i^F=\frac{\alpha Y_i^F}{H_{Mi}^0}.           \label{eq:fixedoutput}
+\end{equation}
+Wages are therefore \emph{not} fixed: productivity-spillover gains pass into
+output and wages. The benchmark recomputes resident labour income using the
+fixed OD probabilities and $w^F$, but it does not use that income to clear the
+residential floor-space market because $Q^F=Q^0$ is maintained.
+
+For a worker who remains on baseline route $(i,j)$, baseline floor-space rents
+cancel from the proportional indirect-utility change. The log change is
+\begin{equation}
+ \Delta\log u_{ij}^F=
+ \log\frac{B_i^F}{B_i^0}
+ +\log\frac{w_j^F}{w_j^0}
+ -\kappa(\tau_{ij}^1-\tau_{ij}^0).                    \label{eq:fixedrouteutility}
+\end{equation}
+The aggregate fixed-distribution log-welfare change is the baseline-flow
+weighted average
+\begin{equation}
+ g^F=\sum_i\sum_j\pi_{ij}^0\Delta\log u_{ij}^F
+     =g_B^F+g_w^F+g_\tau^F,                            \label{eq:fixedwelfare}
+\end{equation}
+where
+\begin{align}
+ g_B^F&=\sum_{ij}\pi_{ij}^0\log(B_i^F/B_i^0),\\
+ g_w^F&=\sum_{ij}\pi_{ij}^0\log(w_j^F/w_j^0),\\
+ g_\tau^F&=-\kappa\sum_{ij}\pi_{ij}^0
+                 (\tau_{ij}^1-\tau_{ij}^0).           \label{eq:fixedcomponents}
+\end{align}
+The table reports total worker welfare as $100[\exp(g^F)-1]$ and each component
+as $100[\exp(g_k^F)-1]$. Because the components combine additively in logs but
+multiplicatively in percentage levels, the displayed component percentages
+need not sum exactly to the displayed total. Fixed-distribution GDP is
+\begin{equation}
+ 100\left(\frac{\sum_iY_i^F}{\sum_iY_i^0}-1\right).    \label{eq:fixedgdp}
+\end{equation}
+
+For a pure transport experiment, annual land rent is unchanged by construction:
+$q$, $Q$, $\theta$, and $L$ are all fixed in \eqref{eq:landrent}. Productivity
+gains accrue to wages in \eqref{eq:fixedoutput}; amenity and commuting gains
+accrue to workers in \eqref{eq:fixedrouteutility}. The zero land-rent change is
+therefore an assumption of this partial-equilibrium benchmark, not a prediction
+that landowners cannot benefit in the closed- or open-city equilibria. Allowing
+rents to adjust while imposing \eqref{eq:fixedmargins} would generally violate
+one or more housing-market, firm, and mixed-use land-arbitrage conditions unless
+additional location-specific wedges were introduced.
+
+\subsection{Zero-spillover versions of all three scenarios}
+When \texttt{project.run\_no\_spillover\_comparison} is enabled, the toolkit
+also runs closed-city, open-city, and fixed-distribution versions with
+\begin{equation}
+ \lambda=0,\qquad \eta=0.                              \label{eq:nospillovers}
+\end{equation}
+This switch removes the endogenous productivity response to employment
+effective density and the endogenous amenity response to residential effective
+density. The decay parameters $\delta$ and $\rho$ remain in the parameter
+structure but are economically inactive because the corresponding
+elasticities are zero. Fundamentals, transport times, preferences, production,
+floor-space supply, commuting choice, and the applicable closure condition
+remain in the model.
+
+The zero-spillover run is not obtained by merely setting two parameters to zero
+after loading the main inversion. It re-inverts the observed baseline under
+\eqref{eq:nospillovers} and then solves the baseline and counterfactual under
+that same specification. This makes each reported percentage change an
+internally consistent comparison and ensures that differences between the two
+specifications reflect spillovers rather than mismatched baseline primitives.
+The main results are unchanged and remain in \path{outputs/simulation}. The
+sensitivity outputs are stored separately in
+\path{outputs/no_spillovers/simulation}; the combined comparison is written to
+\path{outputs/simulation/aggregate_changes_spillover_comparison.csv}.
+
+Interpretation differs by scenario:
+\begin{itemize}
+\item In the \textbf{closed city without spillovers}, population remains fixed,
+but workers may relocate, wages, rents, and land use may adjust, and utility
+changes. The difference from the main closed-city result measures the
+contribution of endogenous productivity and amenity feedbacks, including their
+interaction with relocation.
+\item In the \textbf{open city without spillovers}, utility remains fixed and
+population adjusts. Migration, commuting resorting, wages, rents, land use,
+GDP, and land rent remain endogenous. The difference from the main open-city
+result shows how spillovers affect the city's population and capitalization
+response.
+\item In the \textbf{fixed distribution without spillovers}, OD assignments,
+population, employment, rents, and land use remain fixed. With no direct
+productivity or amenity shock, productivity, amenities, wages, GDP, and land
+rent therefore remain unchanged. Worker welfare changes only through the
+commuting-cost term $g_\tau^F$. This is the cleanest model-based measure of the
+benefit of shorter travel times for baseline commuters.
+\end{itemize}
+
+The difference between the with- and without-spillover results is a sensitivity
+comparison, not in general an additive ``spillover component.'' In the two
+equilibrium closures, spillovers change sorting, prices, land use, and (in the
+open city) population, so interactions are part of the difference. Only the
+fixed-distribution decomposition in \eqref{eq:fixedwelfare} cleanly separates
+commuting, productivity/wage, and amenity terms in log welfare.
 
 \section{Parameter choices}
 \begin{table}[ht]
@@ -519,6 +704,37 @@ fixed, but $q$, $Q$, and $\theta$ need not be. Consequently, percentage changes
 in annual land rent are not generally equal to changes in either floor-space
 rent.
 
+\subsection{Three travel-time measures}
+Let $\pi^0$ and $\pi^1$ denote baseline and counterfactual unconditional OD
+probabilities, $\tau^0$ and $\tau^1$ the corresponding travel-time matrices,
+and $H^0,H^1$ modeled commuter populations. Define
+\begin{equation}
+ \bar T_{00}=\sum_{ij}\pi_{ij}^0\tau_{ij}^0,\qquad
+ \bar T_{01}=\sum_{ij}\pi_{ij}^0\tau_{ij}^1,\qquad
+ \bar T_{11}=\sum_{ij}\pi_{ij}^1\tau_{ij}^1.          \label{eq:traveltimemeans}
+\end{equation}
+The aggregate output table distinguishes:
+\begin{description}
+\item[Mean commute time, baseline flows]
+\path{MeanCommuteTimePct_BaselineFlows} is
+$100(\bar T_{01}/\bar T_{00}-1)$. It changes the network while retaining the
+baseline OD weights. It is the immediate or before-relocation network effect
+for the original commuting pattern.
+\item[Mean commute time, counterfactual flows]
+\path{MeanCommuteTimePct_CounterfactualFlows} is
+$100(\bar T_{11}/\bar T_{00}-1)$. It uses post-adjustment OD weights and hence
+includes the effect of changed residence--workplace patterns on the average
+commute.
+\item[Aggregate commuter-minutes]
+\path{AggregateCommuterMinutesPct} is
+$100[H^1\bar T_{11}/(H^0\bar T_{00})-1]$. It measures the total one-way minutes
+across all modeled commuters. It equals the counterfactual-flow mean measure
+when population is fixed, but differs in the open city because $H^1$ changes.
+\end{description}
+All three measures use one-way commuting time. They are physical time
+statistics, not monetized benefits. The fixed-distribution benchmark has
+$\pi^1=\pi^0$ and $H^1=H^0$, so all three percentage changes coincide.
+
 Before interpretation, users should verify:
 \begin{enumerate}
 \item location IDs and matrix ordering are identical;
@@ -534,6 +750,8 @@ input field labelled land value.
 \begin{longtable}{P{4.3cm}P{9.2cm}}
 \toprule File & Economic role\\ \midrule
 \texttt{invert\_baseline.m} & Commented baseline-inversion entry script.\\
+\texttt{run\_counterfactual.m} & Solves the requested equilibrium closures and the fixed-distribution benchmark.\\
+\texttt{run\_no\_spillovers.m} & Re-inverts and reruns all three scenarios with $\lambda=\eta=0$, saving results separately.\\
 \texttt{qt\_invert\_baseline.m} & Passes the single observed rent into both use-specific inversion conditions.\\
 \texttt{cmodexog.m} & Inverts $A,B,w$ and commuting probabilities jointly.\\
 \texttt{cdensityE.m} & Inverts $L_M,L_R,L,\theta,\varphi$.\\
@@ -541,7 +759,9 @@ input field labelled land value.
 \texttt{ubar.m} & Computes baseline expected utility $\bar U$.\\
 \texttt{smodendog.m} & Solves the closed-city $4N$-equation target system.\\
 \texttt{ussmodendog.m} & Adds population and utility clearing for the open city.\\
-\texttt{qt\_write\_closure\_results.m} & Reports local outcomes and annual land rent.\\
+\path{qt_solve_fixed_distribution.m} & Evaluates fixed OD assignments with transport-mediated spillovers and decomposes worker welfare.\\
+\path{qt_write_closure_results.m} & Reports local outcomes, annual land rent, and the three travel-time measures.\\
+\path{qt_display_results.m} & Displays compact MATLAB headings while preserving descriptive CSV variable names.\\
 \bottomrule
 \end{longtable}
 

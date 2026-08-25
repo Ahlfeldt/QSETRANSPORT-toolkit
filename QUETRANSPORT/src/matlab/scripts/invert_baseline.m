@@ -20,7 +20,7 @@ fprintf('Starting ARSW-style baseline inversion for %d locations.\n',data.N);
 inversion=qt_invert_baseline(data,travelTimeBaseline,param,config);
 
 %% 4. SAVE THE INVERTED FUNDAMENTALS AND BASELINE DIAGNOSTICS
-outputDir=fullfile(projectRoot,'outputs','inversion');
+outputDir=qt_output_dir(projectRoot,config,'inversion');
 if ~isfolder(outputDir); mkdir(outputDir); end
 save(fullfile(outputDir,'baseline_inversion.mat'),'config','param','data','inversion','-v7.3');
 primitiveTable=table(data.id,inversion.A,inversion.B,inversion.a,inversion.b,...

@@ -33,6 +33,7 @@ QUETRANSPORT/
 |       `-- mapping/
 |-- tests/
 |-- outputs/{diagnostics,inversion,simulation,tables,maps}/
+|   `-- no_spillovers/{inversion,simulation}/
 `-- vendor/
 ```
 

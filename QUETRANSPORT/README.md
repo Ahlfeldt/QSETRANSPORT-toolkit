@@ -4,6 +4,13 @@
 
 **Version 0.1.0 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
 
+> **Download a grid. Configure. Push Run.** QUETRANSPORT is compatible with
+> ready-made population and employment grids for **381 US metropolitan areas**
+> and **125 global cities** available from the
+> [AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit). Users can select a
+> city grid, describe a transport improvement, edit one configuration file, and
+> produce validated maps, aggregate statistics, and diagnostics.
+
 QUETRANSPORT integrates:
 
 1. [**GRID**](https://github.com/Ahlfeldt/GRID-toolkit): converts polygon data into a consistent spatial economy.
@@ -25,6 +32,10 @@ Starting from polygon geography, population, employment and one observed floor-s
 - recovers model-consistent wages and spatial fundamentals;
 - solves counterfactuals with endogenous productivity and amenity spillovers;
 - supports a **closed city**, an **open city**, or both;
+- reports a **fixed-distribution accounting benchmark** holding baseline
+  residence-workplace assignments and local employment distributions fixed;
+- optionally re-inverts and reruns every scenario with productivity and amenity
+  spillovers switched off;
 - optionally adds productivity, amenity and structural-density shocks;
 - exports diagnostics, local and aggregate results, and maps.
 
@@ -34,7 +45,12 @@ The observed rent is a **common floor-space rent**, not land rent or a regulator
 
 ### 1. Supply inputs
 
-Place source polygons in `input/raw/grid/`. Their attributes must contain population, employment and a developed/retention indicator; they may contain a common observed floor-space rent. Map exact fields in `project_config.yaml`.
+For the shortest route to a working application, download a city grid from the
+[AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit). Alternatively, use
+your own polygon geography. Place source polygons in `input/raw/grid/`. Their
+attributes must contain population, employment and a developed/retention
+indicator; they may contain a common observed floor-space rent. Map exact fields
+in `project_config.yaml`.
 
 For transport, either place network/station layers under `input/raw/networks/`, or place labeled matrices under `input/raw/travel_times/` and select `ttmatrix.source: user_provided`. A baseline network is optional; if absent, direct off-network travel defines the baseline. Optional policy polygons belong in `input/raw/shocks/`.
 
@@ -152,7 +168,10 @@ Conditional on fixed parameters:
 1. **Quantification:** construct baseline objects and balance employment margins.
 2. **Inversion:** recover productivity, amenities, structural density and wages.
 3. **Counterfactual:** change travel times and optional fundamentals.
-4. **Equilibrium:** solve reallocation, prices, wages, output, land rent and welfare or population.
+4. **Scenarios:** solve the closed- and open-city equilibria and evaluate the
+   fixed-distribution accounting benchmark.
+5. **Sensitivity:** when requested, re-invert the baseline and rerun all three
+   scenarios with productivity and amenity spillovers set to zero.
 
 MATLAB retains explicit damped ARSW-style fixed-point updates. It reports iteration counts and gaps. Reaching an iteration ceiling without meeting tolerance is a hard failure.
 
@@ -167,11 +186,29 @@ results table from an illustrative application.
 |---|---|
 | `outputs/diagnostics/` | resolved configuration, validation and convergence |
 | `outputs/inversion/` | inverted fundamentals and baseline objects |
-| `outputs/simulation/` | levels and percentage changes by closure |
+| `outputs/simulation/` | main scenario results, welfare decomposition, and aggregate comparison |
+| `outputs/no_spillovers/` | separately inverted and simulated zero-spillover sensitivity results |
 | `outputs/tables/` | aggregate outcome tables |
 | `outputs/maps/` | transport innovation, imposed shocks and effects |
 
-Local outputs include population, employment, wages, effective wages, floor-space prices, floor space, output and land rent. Aggregate reports distinguish expected utility, population, GDP/output, residual land rent, and total one-way commuting time. Total travel time weights every OD travel time by its equilibrium commuting probability and multiplies the resulting expected commute by the modeled commuter population. Welfare adjusts in the closed city; outside utility is fixed and population adjusts in the open city.
+Local outputs include population, employment, wages, effective wages,
+floor-space prices, floor space, output and land rent. Aggregate reports
+distinguish expected utility, population, GDP/output, residual land rent, and
+three one-way travel-time measures:
+
+- **Mean commute time, baseline flows:** changes the network while retaining
+  the original OD probabilities, isolating the immediate network effect before
+  relocation.
+- **Mean commute time, counterfactual flows:** uses post-adjustment OD
+  probabilities and therefore includes changed residence-workplace matching.
+- **Aggregate commuter-minutes:** multiplies the post-adjustment mean commute
+  by commuter population, additionally capturing migration in the open city.
+
+The fixed-distribution output also decomposes worker welfare into commuting,
+productivity/wage, and amenity components. Welfare adjusts in the closed city;
+outside utility is fixed and population adjusts in the open city. The
+fixed-distribution case is an accounting benchmark, not a third market-clearing
+equilibrium.
 
 ## Repository layout
 

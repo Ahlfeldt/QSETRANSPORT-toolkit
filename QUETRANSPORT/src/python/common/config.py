@@ -31,6 +31,7 @@ DEFAULTS: dict[str, Any] = {
         "run_ttmatrix": True,
         "run_inversion": True,
         "run_simulation": True,
+        "run_no_spillover_comparison": True,
     },
     "grid": {
         "geometry_id_variable": None,

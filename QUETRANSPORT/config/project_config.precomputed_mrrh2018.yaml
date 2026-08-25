@@ -5,6 +5,7 @@ project:
   run_ttmatrix: true
   run_inversion: true
   run_simulation: true
+  run_no_spillover_comparison: true
 
 paths:
   source_grid_csv: A:/Research/MRRH2018-toolkit/GRID/GRID-toolkit/output/grid-data.csv

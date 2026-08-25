@@ -12,7 +12,9 @@ This `config` subfolder contains only optional templates and preserved examples:
 
 A normal user edits only the root `project_config.yaml`. Its sections cover raw
 inputs, GRID, TTMATRIX, economic parameters, numerical controls, shocks, and
-reporting. Python validates it and writes
+reporting. The project-control section also selects whether to run the
+zero-spillover comparison after the main three-scenario analysis. Python
+validates the configuration and writes
 `input/standardized/runtime_config.json`, which MATLAB reads. The generated JSON
 must not be edited manually.
 

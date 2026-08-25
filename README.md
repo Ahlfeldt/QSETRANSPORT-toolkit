@@ -35,14 +35,19 @@ isolated infrastructure change.
 
 Each toolkit is designed around a straightforward workflow:
 
-1. **Supply urban data** for the study area.
+1. **Download a ready-made city grid** from the
+   [AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit), or supply your
+   own urban data.
 2. **Describe the baseline and improved transport system.**
 3. **Choose model assumptions and policy scenarios in one configuration file.**
 4. **Run the pipeline and inspect validated tables, diagnostics, and maps.**
 
 Depending on the deployed toolkit, users can work with original spatial units
-or regular square and hexagonal grids. The platform is compatible with gridded
-datasets available for many cities through the AABPL toolkit, while its
+or regular square and hexagonal grids. The platform is compatible with
+downloadable population and employment grids for **381 US metropolitan areas**
+and **125 global cities** from the
+[AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit). This provides a
+direct route from selecting a city to configuring a transport scenario, while
 standardized interfaces also allow other data sources and transport matrices to
 be used.
 
@@ -69,6 +74,9 @@ broader QSETRANSPORT collection. It:
 - constructs or validates baseline and counterfactual travel-time matrices;
 - recovers a model-consistent baseline spatial economy;
 - simulates open- and closed-city counterfactuals;
+- evaluates a fixed-distribution benchmark for baseline commuters;
+- compares results with and without endogenous productivity and amenity
+  spillovers;
 - supports additional productivity, amenity, and density changes; and
 - produces diagnostics, local and aggregate results, and maps.
 
@@ -128,10 +136,10 @@ software requirements, which will be documented in their own subfolders.
 ## See what QUETRANSPORT produces
 
 The [QUETRANSPORT showcase](QUETRANSPORT/SHOWCASE/) presents representative
-closed- and open-city maps together with an aggregate results table from one
-illustrative transport scenario. It demonstrates how the toolkit communicates
-spatial changes in population, wages, and output while distinguishing welfare
-and migration responses across city closures.
+maps together with an aggregate comparison of closed-city, open-city, and
+fixed-distribution scenarios—with and without endogenous spillovers. It also
+shows how immediate network travel-time effects differ from post-relocation
+mean commutes and aggregate commuter-minutes.
 
 ## Explore the available toolkit
 

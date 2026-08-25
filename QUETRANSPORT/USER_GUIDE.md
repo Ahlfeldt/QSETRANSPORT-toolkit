@@ -44,6 +44,11 @@ All normal-user choices are in `project_config.yaml`. Work through sections A–
 7. optional shocks;
 8. reporting.
 
+Keep `project.run_no_spillover_comparison: true` to produce the complete
+six-case comparison. The main specification evaluates closed city, open city,
+and fixed distribution. The sensitivity specification re-inverts the baseline
+and repeats all three after setting both spillover elasticities to zero.
+
 Do not edit generated `input/standardized/runtime_config.json`; it is a run-specific snapshot consumed by MATLAB.
 
 ## 3. Run
@@ -77,6 +82,14 @@ Before interpreting results, inspect:
 - inversion and equilibrium iteration/gap output;
 - baseline employment reproduction and accounting checks;
 - aggregate tables and closure-specific maps.
+
+The main aggregate table distinguishes three travel-time statistics. The
+baseline-flow mean holds OD assignments fixed and isolates the network change;
+the counterfactual-flow mean incorporates residence-workplace resorting; and
+aggregate commuter-minutes additionally incorporates a change in commuter
+population. Also inspect
+`outputs/simulation/fixed_distribution_welfare_decomposition.csv` and, when
+enabled, the separate `outputs/no_spillovers/` results.
 
 If inversion exhausts one 199-iteration inner pass, it restarts from the latest productivity and amenity vectors up to `maximum_inversion_passes`. Failure after the configured pass limit stops the run. Equilibrium non-convergence also stops rather than saving a successful result.
 

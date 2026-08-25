@@ -30,12 +30,32 @@ The project configuration exposes `city_closure`:
 
 The two closures should share lower-level update functions and differ only in the outer equilibrium condition, following the structure of the ARSW `smodendog` and `ussmodendog` logic.
 
+## Fixed-distribution accounting benchmark
+
+The third reported scenario is not an equilibrium closure. It holds baseline
+OD probabilities, workplace and residence employment, population, rents, and
+land allocation fixed. Counterfactual transport times still affect direct
+commuting costs and the travel-time-weighted productivity and amenity kernels.
+The benchmark isolates gains available to the original commuter distribution
+without relocation, migration, or rent capitalization and decomposes worker
+welfare into commuting, productivity/wage, and amenity terms.
+
+## Zero-spillover sensitivity
+
+When enabled, the toolkit sets both spillover elasticities to zero, re-inverts
+the observed baseline under that specification, and reruns the closed, open,
+and fixed-distribution scenarios. Re-inversion is essential: applying zero
+spillovers only in the counterfactual would compare incompatible baseline and
+policy models. Sensitivity outputs are stored separately before a combined
+six-scenario aggregate table is produced.
+
 ## MATLAB source organization
 
 Entry scripts in `src/matlab/scripts`:
 
 - `invert_baseline.m`;
 - `run_counterfactual.m`;
+- `run_no_spillovers.m`.
 
 
 All callable functions live in `src/matlab/functions`. No local or nested function definitions belong at the bottom of master scripts. Mapping helpers live in `src/matlab/mapping` because plotting is not part of the equilibrium algorithm.

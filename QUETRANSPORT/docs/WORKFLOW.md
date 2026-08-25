@@ -38,6 +38,15 @@ The policy travel matrix and optional primitive hats replace baseline objects. E
 
 - **Closed city:** total population is fixed and expected utility adjusts.
 - **Open city:** outside utility is fixed and total population adjusts.
+- **Fixed distribution:** baseline OD assignments, local population and
+  employment, rents, and land allocation remain fixed. Travel times still
+  change commuting costs and transport-mediated productivity and amenity
+  kernels. This is an accounting benchmark rather than a market-clearing
+  closure.
+
+When `project.run_no_spillover_comparison` is true, MATLAB separately
+re-inverts the baseline with both spillover elasticities set to zero and reruns
+all three scenarios. The main and sensitivity inversions are never mixed.
 
 Solvers print iteration counts and current gaps. Because the convergence iteration is unknown, these messages are diagnostics rather than percentage-complete progress bars.
 
@@ -45,7 +54,13 @@ Solvers print iteration counts and current gaps. Because the convergence iterati
 
 ## Stage 6: reporting
 
-The pipeline saves levels, local percentage changes, aggregates and maps. Transport innovation is overlaid on impact maps. The one-rent baseline restriction does not turn floor-space rent into land rent: annual land rent is reported from the developer residual.
+The pipeline saves levels, local percentage changes, aggregates and maps.
+Aggregate reporting distinguishes the baseline-flow network effect, the
+counterfactual-flow mean commute, and aggregate commuter-minutes. The
+fixed-distribution benchmark additionally saves a worker-welfare decomposition.
+Transport innovation is overlaid on impact maps. The one-rent baseline
+restriction does not turn floor-space rent into land rent: annual land rent is
+reported from the developer residual.
 
 ## Reproducibility and scale
 

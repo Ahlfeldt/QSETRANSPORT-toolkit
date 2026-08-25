@@ -12,7 +12,10 @@
 - model-consistent wage recovery inside baseline inversion;
 - optional polygon shocks to productivity, amenities and structural density;
 - ARSW-style inversion with repeated passes and hard failure on non-convergence;
-- open- and closed-city counterfactuals;
+- open- and closed-city counterfactuals plus a fixed-distribution accounting benchmark;
+- optional full re-inversion and three-scenario comparison without productivity or amenity spillovers;
+- baseline-flow, counterfactual-flow, and aggregate commuter-minute travel measures;
+- fixed-distribution worker-welfare decomposition into commuting, productivity/wage, and amenity components;
 - local and aggregate tables, transport/shock/equilibrium maps;
 - Python tests for interpolation, original geography and shocks;
 - model codebook and repository documentation.
