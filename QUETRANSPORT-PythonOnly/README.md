@@ -44,15 +44,17 @@ economic-model stage.
 
 ## Run
 
-Raw application data are not distributed in this repository. Download a
-ready-made city grid from the
+The repository includes the raw example inputs used by the reference
+QUETRANSPORT application, so the default configuration can be run immediately
+and compared one-to-one with the mixed Python–MATLAB version. For a new
+application, download a ready-made city grid from the
 [AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit). Convenient
 map-illustrated dropdown menus provide grid downloads for
 [381 US metropolitan areas](https://sites.google.com/view/ahlfeldt/toolkits-and-webtools/prime-locations/prime-locations-in-381-us-msas?authuser=0)
 and
 [125 global cities](https://sites.google.com/view/ahlfeldt/toolkits-and-webtools/prime-locations/prime-locations-in-125-global-cities?authuser=0).
-Alternatively, supply compatible polygon data and transport-network layers
-under `input/raw/`. The default
+Alternatively, replace the example with compatible polygon data and
+transport-network layers under `input/raw/`. The default
 configuration runs GRID and TTMATRIX, generates standardized inputs locally,
 solves the Python model, and writes results to `outputs/`.
 
