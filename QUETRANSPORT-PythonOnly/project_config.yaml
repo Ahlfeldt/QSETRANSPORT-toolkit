@@ -1,0 +1,212 @@
+# =============================================================================
+# QUETRANSPORT USER CONFIGURATION
+# =============================================================================
+# This is the only file in which a normal user makes project choices.
+# Work from top to bottom. The headings separate data preparation assumptions
+# from economic parameters and purely numerical solver controls.
+
+# =============================================================================
+# A. PROJECT CONTROL
+# =============================================================================
+project:
+  name: mrrh2018_raw_grid_hsr_example   # A descriptive name for this application.
+  run_grid: true                        # Generate the standardized grid from this project's copied raw inputs.
+  run_ttmatrix: true                    # Generate baseline and policy travel matrices locally.
+  run_inversion: true                   # Recover baseline spatial fundamentals.
+  run_simulation: true                  # Solve the policy counterfactual.
+  run_no_spillover_comparison: true     # Re-invert and rerun all scenarios with spillovers switched off.
+  reuse_standardized_inputs: false      # Run the complete independent raw-to-results workflow.
+
+# =============================================================================
+# B. INPUT AND OUTPUT LOCATIONS
+# =============================================================================
+# Relative paths are interpreted from the QUETRANSPORT root directory.
+paths:
+  source_grid_folder: input/raw/grid
+
+  # NETWORK FILES ------------------------------------------------------------
+  # Used only when ttmatrix.source is ttmatrix.
+  # Filenames are user choices: enter their project-relative paths here.
+  # Leave BOTH baseline entries null when there is no initial network.
+  baseline_network: null
+  baseline_stations: null
+  counterfactual_network: input/raw/networks/counterfactual/CRL-line.shp
+  counterfactual_stations: input/raw/networks/counterfactual/CRL_Stations.shp
+
+  # USER-PROVIDED TRAVEL-TIME MATRICES --------------------------------------
+  # These are inactive because the current application uses ttmatrix.
+  # If source is changed to user_provided, replace both null values with paths
+  # to the user's aligned baseline and counterfactual travel-time matrices.
+  baseline_matrix: null
+  counterfactual_matrix: null
+  standardized_input: input/standardized
+  output: outputs
+
+# =============================================================================
+# C. GRID CHOICES: TURN SOURCE POLYGONS INTO MODEL LOCATIONS
+# =============================================================================
+grid:
+  mode: generate_from_source_layers
+
+  # GRID SHAPE ---------------------------------------------------------------
+  # Choose exactly one: square, hexagon, or original.
+  cell_geometry: hexagon
+
+  # For squares, 2.0 means a side length of 2 km (area = 4 km²).
+  # For hexagons, QUETRANSPORT chooses a regular hexagon with the same target
+  # area of 4 km², making the two generated-grid choices comparable.
+  # With original, every input polygon is retained as a model location and
+  # cell_size_km is ignored.
+  cell_size_km: 0.5
+
+  # Optional in original mode. When supplied, this source field becomes the
+  # canonical location_id used by TTMATRIX, the Python model, and maps. Leave null to
+  # generate stable sequential identifiers.
+  original_id_variable: null
+
+  # Leave null to select the locally appropriate projected UTM CRS automatically.
+  # Specify an EPSG code only when a particular projected CRS is required.
+  analysis_crs: null
+  output_crs: EPSG:4326
+
+  # SOURCE VARIABLE NAMES ----------------------------------------------------
+  # These must exactly match column names in the shapefiles in source_grid_folder.
+  population_source_variable: pop_sh
+  employment_source_variable: emp_sh
+  developed_source_variable: devle       # Cell retained when this or pop/emp is positive.
+
+  # AREA-BASED ATTRIBUTION --------------------------------------------------
+  # For square/hexagon, source polygons need not coincide with the generated grid.
+  # For original, the input polygons themselves are the target units.
+  # Population and employment are treated as EXTENSIVE quantities: each source
+  # total is split across intersecting target cells in proportion to overlap
+  # area. This preserves their totals. The common rent and the developed field are
+  # INTENSIVE quantities: each target cell receives an overlap-area-weighted
+  # mean. Thus a tiny corner overlap no longer counts like a complete overlap.
+
+  # Aggregate population represented by the model. Employment is automatically
+  # rescaled so aggregate employment equals this population total.
+  total_population: 8000000
+
+  # OBSERVED OR SYNTHETIC FLOOR-SPACE RENT ---------------------------------
+  # Enter the source column name when observed rent data are available.
+  # rent_source_variable is ONE common baseline FLOOR-SPACE rent—not land rent.
+  # It enters both commercial and residential inversion equations. It does not
+  # create a regulatory wedge. Leave null only to use the synthetic fallback.
+  rent_source_variable: null
+
+  # SYNTHETIC DATA ASSUMPTIONS ----------------------------------------------
+  # These are DATA-CONSTRUCTION choices, not structural model parameters.
+  # They are ignored whenever the observed variable is supplied.
+  #
+  # Synthetic common floor-space rent is proportional to population^0.25.
+  # Thus a 1% population difference is associated with roughly a 0.25% rent
+  # difference before the random term. Set to 0 for no systematic relationship.
+  # This single synthetic rent enters both baseline inversion conditions.
+  synthetic_rent_population_elasticity: 0.25
+
+  # Each synthetic rent is multiplied by a reproducible draw between 0.90 and
+  # 1.10 when spread=0.10. Set spread=0 for no random component.
+  synthetic_rent_random_spread: 0.10
+  random_seed: 1                         # Ensures identical synthetic data on reruns.
+  missing_value_rule: stop               # Safe default: do not silently impute data.
+
+# =============================================================================
+# D. TTMATRIX CHOICES: DEFINE TRAVEL WITHOUT AND WITH THE NETWORK
+# =============================================================================
+ttmatrix:
+  # Choose ttmatrix or user_provided. The current example uses ttmatrix.
+  # ttmatrix uses the network paths above; user_provided uses the matrix paths.
+  source: ttmatrix
+  analysis_crs: null                     # Automatically uses a projected local CRS.
+
+  # Off-network access/egress and direct travel use this speed. When both
+  # baseline network paths are null, direct travel defines the baseline.
+  off_network_speed_kmh: 20
+
+  # Counterfactual network travel occurs at this speed. Total policy travel time
+  # also includes access and egress at off_network_speed_kmh.
+  network_speed_kmh: 33
+
+  time_unit: minutes
+
+  # Treatment of travel within the same model cell.
+  # Choose keep or configured_constant.
+  intrazonal_rule: configured_constant
+  intrazonal_minutes: 1.0
+  unreachable_rule: stop
+
+# =============================================================================
+# E. ECONOMIC MODEL PARAMETERS
+# =============================================================================
+# These determine the economic model. They are distinct from the optional
+# synthetic-rent construction in Section C and numerical controls in Section F.
+model:
+  # Choose closed, open, or both.
+  # Closed: total population fixed, expected utility changes.
+  # Open: outside utility fixed, total population changes.
+  city_closure: both
+
+  expenditure_share_consumption: 0.75
+  production_share_labor: 0.80
+  commuting_elasticity: 6.6941
+  commuting_time_coefficient: 0.014744
+
+  # Setting either spillover coefficient to zero switches off that feedback.
+  productivity_spillover: 0.0710
+  productivity_spatial_decay: 0.3617
+  amenity_spillover: 0.1553
+  amenity_spatial_decay: 0.7595
+
+  # Developer technology. These two shares must sum to one.
+  construction_capital_share: 0.75
+  construction_land_share: 0.25
+  outside_utility: baseline
+
+# =============================================================================
+# F. PYTHON FIXED-POINT CONTROLS
+# =============================================================================
+# Most users should retain these defaults. They affect convergence and runtime,
+# not the substantive definition of the policy experiment.
+numerics:
+  maximum_inversion_passes: 10          # Retained for configuration compatibility; the Python inversion uses OD balancing.
+  tolerance_inversion: 1.0e-6
+  tolerance_equilibrium: 1.0e-6
+  maximum_iterations: 10000             # Safety cap for the Python balancing and equilibrium solvers.
+  damping_inversion: 0.10
+  damping_equilibrium: 0.10
+  print_every: 25                       # Python progress update every 25 iterations.
+  save_convergence_trace: true
+
+# =============================================================================
+# G. OPTIONAL NON-TRANSPORT SHOCKS
+# =============================================================================
+scenario:
+  # OPTIONAL. Leave null for a pure transport experiment: all fundamental hats
+  # then equal 1, so the inverted baseline primitives remain unchanged.
+  #
+  # Otherwise point to a polygon shapefile (or GeoPackage) containing the policy
+  # changes in any spatial units. GRID intersects those polygons with the model
+  # cells and area-interpolates each primitive hat. Uncovered cell area receives
+  # the neutral value 1.00. The source polygons must not overlap one another.
+  shocks_shapefile: null
+  # Example: input/raw/shocks/primitive_changes.shp
+  shocks_layer: null                    # Optional GeoPackage layer; ignored for .shp.
+  analysis_crs: null                    # null selects a suitable projected metre CRS.
+
+  # SOURCE FIELD NAMES ------------------------------------------------------
+  # These are deliberately short enough for the shapefile 10-character limit.
+  # Set a field to null when that primitive does not change anywhere.
+  # Values are multiplicative hats: 1.10 = +10%, 0.90 = -10%, 1.00 = unchanged.
+  productivity_hat_variable: prod_hat
+  amenity_hat_variable: amen_hat
+  structural_density_hat_variable: dens_hat
+# =============================================================================
+# H. OUTPUT CHOICES
+# =============================================================================
+reporting:
+  make_maps: true
+  map_format: pdf
+  save_csv: true
+  save_mat: false                       # Python model states are saved as .pkl files.
+  benefit_cost_analysis: false
