@@ -36,8 +36,12 @@ isolated infrastructure change.
 Each toolkit is designed around a straightforward workflow:
 
 1. **Download a ready-made city grid** from the
-   [AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit), or supply your
-   own urban data.
+   [AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit). Convenient
+   map-illustrated dropdown menus provide grid downloads for
+   [381 US metropolitan areas](https://sites.google.com/view/ahlfeldt/toolkits-and-webtools/prime-locations/prime-locations-in-381-us-msas?authuser=0)
+   and
+   [125 global cities](https://sites.google.com/view/ahlfeldt/toolkits-and-webtools/prime-locations/prime-locations-in-125-global-cities?authuser=0).
+   Alternatively, supply your own urban data.
 2. **Describe the baseline and improved transport system.**
 3. **Choose model assumptions and policy scenarios in one configuration file.**
 4. **Run the pipeline and inspect validated tables, diagnostics, and maps.**
@@ -46,10 +50,14 @@ Depending on the deployed toolkit, users can work with original spatial units
 or regular square and hexagonal grids. The platform is compatible with
 downloadable population and employment grids for **381 US metropolitan areas**
 and **125 global cities** from the
-[AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit). This provides a
-direct route from selecting a city to configuring a transport scenario, while
-standardized interfaces also allow other data sources and transport matrices to
-be used.
+[AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit). The convenient
+map-illustrated dropdown download pages for
+[US metropolitan areas](https://sites.google.com/view/ahlfeldt/toolkits-and-webtools/prime-locations/prime-locations-in-381-us-msas?authuser=0)
+and
+[global cities](https://sites.google.com/view/ahlfeldt/toolkits-and-webtools/prime-locations/prime-locations-in-125-global-cities?authuser=0)
+provide a direct route from selecting a city to configuring a transport
+scenario, while standardized interfaces also allow other data sources and
+transport matrices to be used.
 
 ## A collection of deployable toolkits
 

@@ -7,9 +7,14 @@
 > **Download a grid. Configure. Push Run.** QUETRANSPORT is compatible with
 > ready-made population and employment grids for **381 US metropolitan areas**
 > and **125 global cities** available from the
-> [AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit). Users can select a
-> city grid, describe a transport improvement, edit one configuration file, and
-> produce validated maps, aggregate statistics, and diagnostics.
+> [AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit). Convenient
+> map-illustrated dropdown menus provide downloads for
+> [381 US metropolitan areas](https://sites.google.com/view/ahlfeldt/toolkits-and-webtools/prime-locations/prime-locations-in-381-us-msas?authuser=0)
+> and
+> [125 global cities](https://sites.google.com/view/ahlfeldt/toolkits-and-webtools/prime-locations/prime-locations-in-125-global-cities?authuser=0).
+> Users can select a city grid, describe a transport improvement, edit one
+> configuration file, and produce validated maps, aggregate statistics, and
+> diagnostics.
 
 QUETRANSPORT integrates:
 
@@ -46,8 +51,12 @@ The observed rent is a **common floor-space rent**, not land rent or a regulator
 ### 1. Supply inputs
 
 For the shortest route to a working application, download a city grid from the
-[AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit). Alternatively, use
-your own polygon geography. Place source polygons in `input/raw/grid/`. Their
+[AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit), using the convenient
+map-illustrated dropdown menu for
+[381 US metropolitan areas](https://sites.google.com/view/ahlfeldt/toolkits-and-webtools/prime-locations/prime-locations-in-381-us-msas?authuser=0)
+or
+[125 global cities](https://sites.google.com/view/ahlfeldt/toolkits-and-webtools/prime-locations/prime-locations-in-125-global-cities?authuser=0).
+Alternatively, use your own polygon geography. Place source polygons in `input/raw/grid/`. Their
 attributes must contain population, employment and a developed/retention
 indicator; they may contain a common observed floor-space rent. Map exact fields
 in `project_config.yaml`.
