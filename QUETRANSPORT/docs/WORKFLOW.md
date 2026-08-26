@@ -55,8 +55,8 @@ Solvers print iteration counts and current gaps. Because the convergence iterati
 ## Stage 6: reporting
 
 The pipeline saves levels, local percentage changes, aggregates and maps.
-Aggregate reporting distinguishes the baseline-flow network effect, the
-counterfactual-flow mean commute, and aggregate commuter-minutes. The
+Aggregate reporting distinguishes immediate commute-time change,
+post-relocation commute-time change, and total commuter-minutes change. The
 fixed-distribution benchmark additionally saves a worker-welfare decomposition.
 Transport innovation is overlaid on impact maps. The one-rent baseline
 restriction does not turn floor-space rent into land rent: annual land rent is

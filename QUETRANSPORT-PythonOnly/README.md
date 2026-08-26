@@ -57,6 +57,9 @@ Alternatively, replace the example with compatible polygon data and
 transport-network layers under `input/raw/`. The default
 configuration runs GRID and TTMATRIX, generates standardized inputs locally,
 solves the Python model, and writes results to `outputs/`.
+The [input guide](input/README.md) gives the exact geography, field, CRS,
+network and matrix requirements and a checklist for replacing the example
+city.
 
 The optional
 [`config/project_config.identical_standardized_inputs.yaml`](config/project_config.identical_standardized_inputs.yaml)

@@ -167,8 +167,8 @@ will be documented in their own subfolders.
 The [QUETRANSPORT showcase](QUETRANSPORT/SHOWCASE/) presents representative
 maps together with an aggregate comparison of closed-city, open-city, and
 fixed-distribution scenarios—with and without endogenous spillovers. It also
-shows how immediate network travel-time effects differ from post-relocation
-mean commutes and aggregate commuter-minutes.
+shows how immediate commute-time effects differ from post-relocation
+commute-time effects and total commuter-minutes.
 
 ## Explore the available toolkit
 
