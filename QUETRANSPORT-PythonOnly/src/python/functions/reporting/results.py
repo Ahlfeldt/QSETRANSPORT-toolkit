@@ -55,9 +55,9 @@ def write_closure_results(project_root: Path, data: ModelData, baseline: Equilib
         "PopulationPct": 100 * (counterfactual.population / baseline.population - 1),
         "GDPPct": 100 * (e1[:, 3].sum() / e0[:, 3].sum() - 1),
         "TotalLandRentPct": 100 * (land_rent1.sum() / land_rent0.sum() - 1),
-        "MeanCommuteTimePct_BaselineFlows": 100 * (baseline_flow_cf / mean0 - 1),
-        "MeanCommuteTimePct_CounterfactualFlows": 100 * (mean1 / mean0 - 1),
-        "AggregateCommuterMinutesPct": 100 * (counterfactual.population * mean1 / (baseline.population * mean0) - 1),
+        "ImmediateCommuteTimeChangePct": 100 * (baseline_flow_cf / mean0 - 1),
+        "PostRelocationCommuteTimeChangePct": 100 * (mean1 / mean0 - 1),
+        "TotalCommuterMinutesChangePct": 100 * (counterfactual.population * mean1 / (baseline.population * mean0) - 1),
         "Converged": counterfactual.converged,
         "Iterations": counterfactual.iterations,
     }])

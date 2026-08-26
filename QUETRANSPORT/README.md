@@ -205,13 +205,16 @@ floor-space prices, floor space, output and land rent. Aggregate reports
 distinguish expected utility, population, GDP/output, residual land rent, and
 three one-way travel-time measures:
 
-- **Mean commute time, baseline flows:** changes the network while retaining
-  the original OD probabilities, isolating the immediate network effect before
-  relocation.
-- **Mean commute time, counterfactual flows:** uses post-adjustment OD
-  probabilities and therefore includes changed residence-workplace matching.
-- **Aggregate commuter-minutes:** multiplies the post-adjustment mean commute
+- **Immediate commute-time change:** changes the network while retaining the
+  original OD probabilities, isolating the network effect before relocation.
+- **Post-relocation commute-time change:** uses post-adjustment OD probabilities
+  and therefore includes changed residence-workplace matching.
+- **Total commuter-minutes change:** multiplies the post-adjustment mean commute
   by commuter population, additionally capturing migration in the open city.
+
+All three are percentage changes in one-way physical travel time relative to
+the pre-policy equilibrium—not changes measured in minutes or monetized
+benefits. Negative values indicate time savings.
 
 The fixed-distribution output also decomposes worker welfare into commuting,
 productivity/wage, and amenity components. Welfare adjusts in the closed city;
