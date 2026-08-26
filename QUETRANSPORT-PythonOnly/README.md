@@ -61,6 +61,10 @@ The [input guide](input/README.md) gives the exact geography, field, CRS,
 network and matrix requirements and a checklist for replacing the example
 city.
 
+The toolkit is fully documented within this folder. Start with the
+[user guide](USER_GUIDE.md), browse the [documentation index](docs/README.md),
+or consult the [Python-only codebook](docs/QUETRANSPORT_PYTHON_CODEBOOK.md).
+
 For a fundamentals-only counterfactual, set both
 `paths.counterfactual_network` and `paths.counterfactual_stations` to `null`.
 TTMATRIX then reuses the complete baseline travel-time matrix, so all simulated

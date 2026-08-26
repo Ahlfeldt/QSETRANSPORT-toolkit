@@ -56,10 +56,11 @@ local projected CRS automatically, or supply a suitable projected EPSG code.
    `outputs/diagnostics/travel_time_validation.json` and the validation maps
    before interpreting the economic results.
 
-See the fully commented [`project_config.yaml`](../project_config.yaml) and the
-mixed toolkit's detailed [user guide](../../QUETRANSPORT/USER_GUIDE.md) and
-[standardized data contract](../../QUETRANSPORT/docs/DATA_CONTRACT.md). The raw
-input and standardized-data contracts are identical in both versions.
+See the [user guide](../USER_GUIDE.md), the fully commented
+[`project_config.yaml`](../project_config.yaml), and the detailed
+[standardized data contract](../docs/DATA_CONTRACT.md). These documents are
+self-contained; the raw and standardized contracts remain aligned with the
+mixed toolkit.
 
 ## Ready-made city grids
 

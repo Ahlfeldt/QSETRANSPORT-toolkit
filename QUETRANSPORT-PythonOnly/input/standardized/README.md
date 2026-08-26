@@ -19,5 +19,5 @@ A complete preparation run creates:
 Do not edit these files or combine files produced by different runs. Every
 table and geometry uses the canonical `location_id` set defined by
 `model/locations.csv`; matrix row and column order follows the same IDs. The
-contract is identical to the mixed toolkit's
-[standardized data contract](../../../QUETRANSPORT/docs/DATA_CONTRACT.md).
+contract is documented in the Python-only
+[standardized data contract](../../docs/DATA_CONTRACT.md).
