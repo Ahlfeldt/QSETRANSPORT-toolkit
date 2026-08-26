@@ -10,9 +10,9 @@ normal run; no MATLAB input is required.
 | Input | Location | Role |
 |---|---|---|
 | `grid_61.*` | `raw/grid/` | Source polygons containing population, employment and a developed-area indicator. |
-| `CRL-line.*` | `raw/networks/counterfactual/` | Counterfactual transport line. |
-| `CRL_Stations.*` | `raw/networks/counterfactual/` | Counterfactual station points. |
-| `prod_shock.*` | `raw/shocks/` | Optional example productivity shock. It is inactive while `scenario.shocks_shapefile` is `null`. |
+| `lines.*` | `raw/networks/counterfactual/` | Counterfactual transport lines. |
+| `stations.*` | `raw/networks/counterfactual/` | Counterfactual station points. |
+| `primitive_changes.*` | `raw/shocks/` | Optional example primitive changes. They are inactive while `scenario.shocks_shapefile` is `null`. |
 
 A shapefile is a set of files, so keep its `.shp`, `.dbf`, `.shx`, `.prj` and
 any other sidecar files together. The reference configuration maps `pop_sh` to
