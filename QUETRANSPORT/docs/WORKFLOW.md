@@ -14,7 +14,7 @@ GRID reads source polygons, maps declared attributes, creates square/hexagonal c
 
 ## Stage 2: TTMATRIX
 
-TTMATRIX either constructs baseline/counterfactual travel times from centroids and network layers or validates labeled user matrices. A missing baseline network produces direct off-network baseline travel. Both scenarios use the same centroids, units and routing assumptions.
+TTMATRIX either constructs baseline/counterfactual travel times from centroids and network layers or validates labeled user matrices. A missing baseline network produces direct off-network baseline travel. If both counterfactual network paths are null, TTMATRIX copies the baseline matrix, allowing a fundamentals-only counterfactual. Both scenarios use the same centroids, units and routing assumptions.
 
 **Gate:** square finite matrices with the exact location IDs and order.
 
@@ -55,8 +55,8 @@ Solvers print iteration counts and current gaps. Because the convergence iterati
 ## Stage 6: reporting
 
 The pipeline saves levels, local percentage changes, aggregates and maps.
-Aggregate reporting distinguishes the baseline-flow network effect, the
-counterfactual-flow mean commute, and aggregate commuter-minutes. The
+Aggregate reporting distinguishes immediate commute-time change,
+post-relocation commute-time change, and total commuter-minutes change. The
 fixed-distribution benchmark additionally saves a worker-welfare decomposition.
 Transport innovation is overlaid on impact maps. The one-rent baseline
 restriction does not turn floor-space rent into land rent: annual land rent is

@@ -1,9 +1,9 @@
 # Input data
 
-The Python-only toolkit includes the same raw reference inputs as the mixed
-Python–MATLAB toolkit, allowing one-to-one output comparisons. GRID and
-TTMATRIX recreate the uncommitted `input/standardized/` files during every
-normal run; no MATLAB input is required.
+QUETRANSPORT includes the raw inputs for its reference application. The mixed
+Python–MATLAB and Python-only toolkits therefore start from exactly the same
+source data and can be compared one-to-one. GRID and TTMATRIX recreate the
+uncommitted `input/standardized/` files during every normal run.
 
 ## Bundled reference application
 
@@ -56,20 +56,16 @@ local projected CRS automatically, or supply a suitable projected EPSG code.
    `outputs/diagnostics/travel_time_validation.json` and the validation maps
    before interpreting the economic results.
 
-See the fully commented [`project_config.yaml`](../project_config.yaml) and the
-mixed toolkit's detailed [user guide](../../QUETRANSPORT/USER_GUIDE.md) and
-[standardized data contract](../../QUETRANSPORT/docs/DATA_CONTRACT.md). The raw
-input and standardized-data contracts are identical in both versions.
+See the [user guide](../USER_GUIDE.md), the fully commented
+[`project_config.yaml`](../project_config.yaml), and the detailed
+[standardized data contract](../docs/DATA_CONTRACT.md) for definitions and
+troubleshooting.
 
 ## Ready-made city grids
 
-Ready-made population and employment grids for many cities can be downloaded
-from the [AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit). Convenient
-map-illustrated dropdown menus provide downloads for
+Ready-made population and employment grids can be obtained from the
+[AABPL toolkit](https://github.com/Ahlfeldt/AABPL-toolkit), including convenient
+map-illustrated dropdown downloads for
 [381 US metropolitan areas](https://sites.google.com/view/ahlfeldt/toolkits-and-webtools/prime-locations/prime-locations-in-381-us-msas?authuser=0)
 and
 [125 global cities](https://sites.google.com/view/ahlfeldt/toolkits-and-webtools/prime-locations/prime-locations-in-125-global-cities?authuser=0).
-
-To reproduce a controlled solver-only comparison instead, populate
-`input/standardized/` with the same data contract used by QUETRANSPORT and run
-with `config/project_config.identical_standardized_inputs.yaml`.

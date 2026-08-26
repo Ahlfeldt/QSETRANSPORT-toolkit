@@ -21,7 +21,9 @@ Keep `ttmatrix.source: ttmatrix` to construct matrices.
 
 - Leave both baseline network paths `null` for direct off-network baseline travel.
 - Supply both baseline line and station layers when an initial network exists.
-- Supply both counterfactual line and station layers for the policy network.
+- Supply both counterfactual line and station layers for a transport policy.
+- Set both counterfactual paths to `null` for a fundamentals-only experiment;
+  the counterfactual travel-time matrix is then identical to the baseline.
 
 Alternatively, select `user_provided` and configure labeled baseline and counterfactual matrices. In the current TTMATRIX application the user-provided matrix paths correctly remain `null`.
 
@@ -83,11 +85,11 @@ Before interpreting results, inspect:
 - baseline employment reproduction and accounting checks;
 - aggregate tables and closure-specific maps.
 
-The main aggregate table distinguishes three travel-time statistics. The
-baseline-flow mean holds OD assignments fixed and isolates the network change;
-the counterfactual-flow mean incorporates residence-workplace resorting; and
-aggregate commuter-minutes additionally incorporates a change in commuter
-population. Also inspect
+The main aggregate table distinguishes three travel-time statistics.
+**Immediate commute-time change** holds origin–destination assignments fixed
+and isolates the network change. **Post-relocation commute-time change** also
+incorporates residence-workplace resorting. **Total commuter-minutes change**
+additionally incorporates a change in commuter population. Also inspect
 `outputs/simulation/fixed_distribution_welfare_decomposition.csv` and, when
 enabled, the separate `outputs/no_spillovers/` results.
 

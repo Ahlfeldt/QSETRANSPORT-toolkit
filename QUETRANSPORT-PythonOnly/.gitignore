@@ -35,7 +35,9 @@ outputs/**
 # Retain directory skeletons
 !input/raw/**/.gitkeep
 !input/standardized/**/.gitkeep
+!input/standardized/README.md
 !outputs/**/.gitkeep
+!outputs/README.md
 
 # GIS working files
 *.shp.xml
@@ -46,4 +48,4 @@ outputs/**
 *.gpkg-shm
 
 # Retain the spatial index supplied with the bundled reference network
-!input/raw/networks/counterfactual/CRL-line.qix
+!input/raw/networks/counterfactual/lines.qix

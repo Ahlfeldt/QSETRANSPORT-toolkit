@@ -182,12 +182,25 @@ def generate_travel_times(config: dict[str, Any]) -> dict[str, Any]:
         baseline_station_count = 0
         baseline_definition = "direct centroid-to-centroid travel without a baseline network"
 
-    counterfactual, counterfactual_station_count = _travel_matrix_with_network(
-        direct_minutes, coords,
-        Path(config["paths"]["counterfactual_network"]),
-        Path(config["paths"]["counterfactual_stations"]),
-        routing_crs, offnetwork_speed, network_speed, "counterfactual"
-    )
+    # Null counterfactual paths mean no transport intervention. Reuse the
+    # complete baseline matrix, whether the baseline is direct travel or was
+    # constructed from an initial network. This permits fundamentals-only
+    # counterfactuals without introducing a spurious network change.
+    counterfactual_network = config["paths"].get("counterfactual_network")
+    counterfactual_stations = config["paths"].get("counterfactual_stations")
+    if counterfactual_network and counterfactual_stations:
+        counterfactual, counterfactual_station_count = _travel_matrix_with_network(
+            direct_minutes, coords,
+            Path(counterfactual_network), Path(counterfactual_stations),
+            routing_crs, offnetwork_speed, network_speed, "counterfactual"
+        )
+        counterfactual_definition = (
+            "minimum of direct travel and counterfactual access-network-egress travel"
+        )
+    else:
+        counterfactual = baseline.copy()
+        counterfactual_station_count = baseline_station_count
+        counterfactual_definition = "identical to baseline travel (no transport intervention)"
 
     rule = tt_cfg.get("intrazonal_rule", "keep")
     if rule == "configured_constant":
@@ -216,7 +229,7 @@ def generate_travel_times(config: dict[str, Any]) -> dict[str, Any]:
         "baseline_number_of_stations": baseline_station_count,
         "counterfactual_number_of_stations": counterfactual_station_count,
         "baseline_definition": baseline_definition,
-        "counterfactual_definition": "minimum of direct travel and access-network-egress travel",
+        "counterfactual_definition": counterfactual_definition,
         "off_network_speed_kmh": offnetwork_speed,
         "network_speed_kmh": network_speed,
         "routing_crs": str(routing_crs),

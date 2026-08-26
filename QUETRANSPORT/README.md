@@ -61,7 +61,7 @@ attributes must contain population, employment and a developed/retention
 indicator; they may contain a common observed floor-space rent. Map exact fields
 in `project_config.yaml`.
 
-For transport, either place network/station layers under `input/raw/networks/`, or place labeled matrices under `input/raw/travel_times/` and select `ttmatrix.source: user_provided`. A baseline network is optional; if absent, direct off-network travel defines the baseline. Optional policy polygons belong in `input/raw/shocks/`.
+For transport, either place network/station layers under `input/raw/networks/`, or place labeled matrices under `input/raw/travel_times/` and select `ttmatrix.source: user_provided`. A baseline network is optional; if absent, direct off-network travel defines the baseline. Optional policy polygons belong in `input/raw/shocks/`. The [input guide](input/README.md) gives the exact geography, field, CRS, network and matrix requirements and a checklist for replacing the example city.
 
 ### 2. Edit one file
 
@@ -160,7 +160,9 @@ With `ttmatrix.source: ttmatrix`:
 
 - both baseline network paths `null` means a direct off-network baseline;
 - both baseline layers supplied means an initial-network baseline;
-- counterfactual layers describe the policy network.
+- both counterfactual layers supplied describe the policy network;
+- both counterfactual paths `null` mean no transport change: the baseline
+  matrix is reused so fundamentals-only counterfactuals can be evaluated.
 
 With `user_provided`, both matrix paths are required and network paths are ignored. Matrices must be finite, nonnegative, labeled and square. The pipeline checks dimensions, IDs, order, diagonal treatment and change distributions before MATLAB.
 
