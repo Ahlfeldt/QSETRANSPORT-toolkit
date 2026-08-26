@@ -83,3 +83,14 @@ def test_standardized_primitive_changes_are_applied():
     np.testing.assert_array_equal(shocked.amenity, inversion.fundamentals.amenity)
     np.testing.assert_array_equal(shocked.density, inversion.fundamentals.density)
     assert shocked is not inversion.fundamentals
+
+
+def test_equilibrium_progress_label_is_printed(capsys):
+    d, p = data(), parameters()
+    travel = np.array([[1.0, 2.0], [2.0, 1.0]])
+    inversion = invert_baseline(d, travel, p)
+    solve_closure(
+        "closed", p, inversion.fundamentals, travel,
+        progress_label="[Main | Counterfactual | Closed city]",
+    )
+    assert "[Main | Counterfactual | Closed city] iteration 1" in capsys.readouterr().out
