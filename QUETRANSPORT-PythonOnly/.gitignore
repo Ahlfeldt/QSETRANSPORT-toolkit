@@ -35,7 +35,9 @@ outputs/**
 # Retain directory skeletons
 !input/raw/**/.gitkeep
 !input/standardized/**/.gitkeep
+!input/standardized/README.md
 !outputs/**/.gitkeep
+!outputs/README.md
 
 # GIS working files
 *.shp.xml
