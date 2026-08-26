@@ -1,4 +1,4 @@
-Specification,Closure,ExpectedUtilityPct,PopulationPct,GDPPct,TotalLandRentPct,MeanCommuteTimePct_BaselineFlows,MeanCommuteTimePct_CounterfactualFlows,AggregateCommuterMinutesPct
+Specification,Closure,ExpectedUtilityPct,PopulationPct,GDPPct,TotalLandRentPct,ImmediateCommuteTimeChangePct,PostRelocationCommuteTimeChangePct,TotalCommuterMinutesChangePct
 with_spillovers,closed,1.01306916934909,0,0.89691507455103,0.896892885135525,-2.76935789304663,0.644620035754828,0.644620035754828
 with_spillovers,open,-6.58894133032106e-05,5.40558804466578,5.63126088859034,5.63147331591443,-2.76935789304663,0.645104594554158,6.08556433605871
 with_spillovers,fixed_distribution,0.977393482263245,0,0.183785402118675,0,-2.76935789304663,-2.76935789304663,-2.76935789304664

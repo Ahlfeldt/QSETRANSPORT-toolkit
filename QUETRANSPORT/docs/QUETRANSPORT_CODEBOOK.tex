@@ -704,7 +704,51 @@ fixed, but $q$, $Q$, and $\theta$ need not be. Consequently, percentage changes
 in annual land rent are not generally equal to changes in either floor-space
 rent.
 
-\subsection{Three travel-time measures}
+\subsection{Aggregate output columns}
+\begin{longtable}{P{4.7cm}P{3.4cm}P{5.5cm}}
+\toprule
+CSV column & MATLAB label & Meaning\\
+\midrule
+\endfirsthead
+\toprule
+CSV column & MATLAB label & Meaning\\
+\midrule
+\endhead
+\texttt{ExpectedUtilityPct} & \texttt{UtilityPct} &
+Percentage change in expected worker utility. Utility adjusts in the closed
+city, is fixed up to numerical tolerance in the open city, and is evaluated for
+baseline commuters in the fixed-distribution benchmark.\\
+\texttt{PopulationPct} & \texttt{PopPct} &
+Percentage change in modeled workers. It is zero by construction in the closed
+city and fixed-distribution benchmark and adjusts in the open city.\\
+\texttt{GDPPct} & \texttt{GDPPct} &
+Percentage change in aggregate model output, $\sum_iY_i$.\\
+\texttt{TotalLandRentPct} & \texttt{RentPct} &
+Percentage change in the aggregate annual developer residual in
+\eqref{eq:landrent}; it is not a floor-space rent, house price, or capitalized
+land value.\\
+\texttt{ImmediateCommuteTime}\newline\texttt{ChangePct} &
+\texttt{ImmediateTimePct} &
+Percentage change in average one-way commuting time using baseline OD flows.
+It isolates the network effect before relocation; negative values are time
+savings.\\
+\texttt{PostRelocation}\newline\texttt{CommuteTimeChangePct} &
+\texttt{PostMoveTimePct} &
+Percentage change in average one-way commuting time using the scenario's OD
+flows. It combines the network change with relocation and resorting.\\
+\texttt{TotalCommuterMinutes}\newline\texttt{ChangePct} &
+\texttt{TotalMinutesPct} &
+Percentage change in aggregate one-way commuter-minutes. It additionally
+incorporates the change in modeled commuter population.\\
+\bottomrule
+\end{longtable}
+
+Zeroes and near-zeroes can be model restrictions rather than empirical
+findings: closed-city population is fixed, open-city utility is fixed, and
+fixed-distribution population and rents are fixed. Small deviations in such
+columns reflect numerical solver tolerance.
+
+\subsection{Three travel-time percentage changes}
 Let $\pi^0$ and $\pi^1$ denote baseline and counterfactual unconditional OD
 probabilities, $\tau^0$ and $\tau^1$ the corresponding travel-time matrices,
 and $H^0,H^1$ modeled commuter populations. Define
@@ -713,20 +757,28 @@ and $H^0,H^1$ modeled commuter populations. Define
  \bar T_{01}=\sum_{ij}\pi_{ij}^0\tau_{ij}^1,\qquad
  \bar T_{11}=\sum_{ij}\pi_{ij}^1\tau_{ij}^1.          \label{eq:traveltimemeans}
 \end{equation}
-The aggregate output table distinguishes:
+Every number below is a percentage change relative to the pre-policy
+equilibrium, not a travel-time level or a change measured in minutes. A negative
+number means that travel time falls and therefore represents a time saving. The
+aggregate output table distinguishes:
 \begin{description}
-\item[Mean commute time, baseline flows]
-\path{MeanCommuteTimePct_BaselineFlows} is
+\item[Immediate commute-time change]
+\par\noindent
+\texttt{ImmediateCommuteTime}\newline\texttt{ChangePct} is
 $100(\bar T_{01}/\bar T_{00}-1)$. It changes the network while retaining the
 baseline OD weights. It is the immediate or before-relocation network effect
-for the original commuting pattern.
-\item[Mean commute time, counterfactual flows]
-\path{MeanCommuteTimePct_CounterfactualFlows} is
+for the original commuting pattern. For example, $-3.36$ means that average
+one-way commuting time falls by $3.36$ percent; it does not mean a change of
+$-3.36$ minutes.
+\item[Post-relocation commute-time change]
+\par\noindent
+\texttt{PostRelocationCommuteTime}\newline\texttt{ChangePct} is
 $100(\bar T_{11}/\bar T_{00}-1)$. It uses post-adjustment OD weights and hence
 includes the effect of changed residence--workplace patterns on the average
 commute.
-\item[Aggregate commuter-minutes]
-\path{AggregateCommuterMinutesPct} is
+\item[Total commuter-minutes change]
+\par\noindent
+\texttt{TotalCommuterMinutes}\newline\texttt{ChangePct} is
 $100[H^1\bar T_{11}/(H^0\bar T_{00})-1]$. It measures the total one-way minutes
 across all modeled commuters. It equals the counterfactual-flow mean measure
 when population is fixed, but differs in the open city because $H^1$ changes.
@@ -734,6 +786,33 @@ when population is fixed, but differs in the open city because $H^1$ changes.
 All three measures use one-way commuting time. They are physical time
 statistics, not monetized benefits. The fixed-distribution benchmark has
 $\pi^1=\pi^0$ and $H^1=H^0$, so all three percentage changes coincide.
+
+A positive post-relocation commute-time change does not contradict an immediate
+time saving: workers may use the improved network to choose more distant but
+otherwise more attractive residence--workplace pairs. Total commuter-minutes
+can additionally increase in the open city when the city attracts more workers.
+
+\subsection{Zero-centred map classification}
+Equilibrium-impact maps use a mechanical seven-category diverging scheme in
+which blue always denotes a negative change, red always denotes a positive
+change, and the central category is symmetric around zero. For each mapped
+outcome, let $z$ collect the non-zero absolute percentage changes pooled across
+the closed- and open-city results. Define
+\begin{equation}
+ c_1=Q_{0.25}(z),\qquad c_2=Q_{0.50}(z),\qquad
+ c_3=Q_{0.75}(z).                                    \label{eq:mapbreaks}
+\end{equation}
+The seven intervals are
+\begin{equation}
+ (-\infty,-c_3],\ (-c_3,-c_2],\ (-c_2,-c_1),\
+ [-c_1,c_1],\ (c_1,c_2),\ [c_2,c_3),\ [c_3,\infty).
+\end{equation}
+Breaks are identical across closures for the same outcome, making colour
+intensities comparable, but are not pooled across different outcomes. If
+discrete values make the thresholds coincide, the implementation uses the
+median non-zero absolute change $m$ and $(c_1,c_2,c_3)=(0.5m,m,2m)$. If all
+changes are zero, observed locations receive one neutral colour. Primitive-shock
+maps retain their continuous scale symmetric around zero.
 
 Before interpretation, users should verify:
 \begin{enumerate}

@@ -95,7 +95,7 @@ spillovers only after loading the main inversion.
 
 ## Travel-time results
 
-| Spillovers | Scenario | Baseline-flow mean | Counterfactual-flow mean | Aggregate commuter-minutes |
+| Spillovers | Scenario | Immediate commute-time change | Post-relocation commute-time change | Total commuter-minutes change |
 |---|---|---:|---:|---:|
 | With | Closed city | −2.769% | +0.645% | +0.645% |
 | With | Open city | −2.769% | +0.645% | +6.086% |
@@ -104,11 +104,13 @@ spillovers only after loading the main inversion.
 | Without | Open city | −2.769% | −0.186% | +2.081% |
 | Without | Fixed distribution | −2.769% | −2.769% | −2.769% |
 
-The **baseline-flow mean** applies the counterfactual network to the original OD
-probabilities, isolating the immediate network effect before relocation. The
-**counterfactual-flow mean** uses the scenario’s post-adjustment OD
-probabilities. **Aggregate commuter-minutes** additionally incorporates the
-change in commuter population.
+The **immediate commute-time change** applies the counterfactual network to the
+original OD probabilities, isolating the network effect before relocation. The
+**post-relocation commute-time change** uses the scenario’s post-adjustment OD
+probabilities. **Total commuter-minutes change** additionally incorporates the
+change in commuter population. These are percentage changes in one-way physical
+travel time relative to the pre-policy equilibrium; negative values are time
+savings, not changes measured in minutes.
 
 The example shows why these distinctions matter: the transport network reduces
 the original commuters’ mean travel time by 2.769%, while endogenous

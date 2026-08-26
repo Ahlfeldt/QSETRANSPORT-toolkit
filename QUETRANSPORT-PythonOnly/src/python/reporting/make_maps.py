@@ -29,26 +29,52 @@ COMMERCIAL_PRICE = "rent_commercial_pct"
 COMBINED_PRICE = "floor_space_price_pct"
 
 
-def classified_values(values: pd.Series, classes: int = 7) -> tuple[pd.Series, list[str]]:
-    """Create robust quantile classes and human-readable interval labels."""
+def symmetric_thresholds(values: pd.Series) -> np.ndarray | None:
+    """Return three positive, dispersion-adaptive thresholds around zero."""
     finite = pd.to_numeric(values, errors="coerce")
     valid = finite[np.isfinite(finite)]
-    if valid.empty or valid.nunique() == 1:
-        label = f"{valid.iloc[0]:.3g}" if not valid.empty else "No data"
-        return pd.Series(0, index=values.index, dtype="Int64"), [label]
-    quantiles = np.unique(np.quantile(valid, np.linspace(0, 1, classes + 1)))
-    if len(quantiles) < 2:
-        quantiles = np.array([valid.min(), valid.max()])
-    quantiles[0] = -np.inf
-    quantiles[-1] = np.inf
-    classified = pd.cut(finite, bins=quantiles, labels=False, include_lowest=True)
-    labels = []
-    for left, right in zip(quantiles[:-1], quantiles[1:]):
-        label = f"≤ {right:.3g}" if np.isneginf(left) else f"{left:.3g} to {right:.3g}"
-        if np.isposinf(right):
-            label = f"> {left:.3g}"
-        labels.append(label)
-    return classified.astype("Int64"), labels
+    magnitudes = np.abs(valid.to_numpy(dtype=float))
+    magnitudes = magnitudes[magnitudes > 1.0e-12]
+    if magnitudes.size == 0:
+        return None
+
+    thresholds = np.quantile(magnitudes, [0.25, 0.50, 0.75])
+    if not np.all(np.diff(thresholds) > 1.0e-12):
+        scale = float(np.median(magnitudes))
+        thresholds = scale * np.array([0.5, 1.0, 2.0])
+    return thresholds
+
+
+def classified_values(
+    values: pd.Series, thresholds: np.ndarray | None
+) -> tuple[pd.Series, list[str]]:
+    """Classify changes into three negative, one central, and three positive bins."""
+    finite = pd.to_numeric(values, errors="coerce")
+    if thresholds is None:
+        classified = pd.Series(pd.NA, index=values.index, dtype="Int64")
+        classified.loc[finite.notna()] = 3
+        return classified, ["No change"]
+
+    q1, q2, q3 = thresholds
+    classified = pd.Series(pd.NA, index=values.index, dtype="Int64")
+    valid = finite.notna() & np.isfinite(finite)
+    classified.loc[valid] = 3
+    classified.loc[valid & (finite < -q1)] = 2
+    classified.loc[valid & (finite <= -q2)] = 1
+    classified.loc[valid & (finite <= -q3)] = 0
+    classified.loc[valid & (finite > q1)] = 4
+    classified.loc[valid & (finite >= q2)] = 5
+    classified.loc[valid & (finite >= q3)] = 6
+    labels = [
+        f"≤ {-q3:.3g}",
+        f"{-q3:.3g} to {-q2:.3g}",
+        f"{-q2:.3g} to {-q1:.3g}",
+        f"{-q1:.3g} to {q1:.3g}",
+        f"{q1:.3g} to {q2:.3g}",
+        f"{q2:.3g} to {q3:.3g}",
+        f"> {q3:.3g}",
+    ]
+    return classified, labels
 
 
 def _transport_innovation(config: dict, map_crs) -> gpd.GeoDataFrame | None:
@@ -150,6 +176,8 @@ def make_maps(config_path: str | Path) -> None:
     closure_choice = config["model"]["city_closure"]
     closures = ["closed", "open"] if closure_choice == "both" else [closure_choice]
 
+    scenario_maps: dict[str, tuple[gpd.GeoDataFrame, dict[str, str]]] = {}
+    pooled_values: dict[str, list[pd.Series]] = {}
     for closure in closures:
         result_path = (
             Path(config["paths"]["output"])
@@ -175,11 +203,28 @@ def make_maps(config_path: str | Path) -> None:
             raise ValueError(
                 f"No simulation results joined to geometry for {closure} city."
             )
+        scenario_maps[closure] = (mapped, outcomes)
+        for variable in outcomes:
+            pooled_values.setdefault(variable, []).append(mapped[variable])
 
+    shared_thresholds = {
+        variable: symmetric_thresholds(pd.concat(series, ignore_index=True))
+        for variable, series in pooled_values.items()
+    }
+
+    for closure in closures:
+        mapped, outcomes = scenario_maps[closure]
         for variable, title in outcomes.items():
-            mapped["map_class"], labels = classified_values(mapped[variable])
-            number_classes = len(labels)
-            cmap = plt.get_cmap("RdBu_r", number_classes)
+            thresholds = shared_thresholds[variable]
+            mapped["map_class"], labels = classified_values(
+                mapped[variable], thresholds
+            )
+            if thresholds is None:
+                number_classes = 1
+                cmap = plt.matplotlib.colors.ListedColormap(["#f7f7f7"])
+            else:
+                number_classes = 7
+                cmap = plt.get_cmap("RdBu_r", number_classes)
             fig, ax = plt.subplots(figsize=(9.0, 7.2))
             mapped.plot(
                 column="map_class",

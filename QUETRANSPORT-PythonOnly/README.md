@@ -84,7 +84,9 @@ python .\src\python\run_pipeline.py --model-only --skip-maps
 - closed- and open-city equilibrium fixed points;
 - fixed-distribution accounting benchmark;
 - optional re-inversion with spillovers set to zero;
-- the three travel-time measures used by QUETRANSPORT;
+- the three clearly labelled travel-time measures used by QUETRANSPORT:
+  immediate commute-time change, post-relocation commute-time change, and
+  total commuter-minutes change;
 - local outcome tables, aggregate results, and welfare decomposition;
 - the existing GRID, TTMATRIX, scenario, and mapping preparation stages.
 
