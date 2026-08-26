@@ -1,6 +1,6 @@
-# QUETRANSPORT showcase
+# QUETRANSPORT-PythonOnly showcase
 
-This showcase follows one configured QUETRANSPORT application from its simple
+This showcase follows one configured QUETRANSPORT-PythonOnly application from its simple
 map-based inputs to its appraisal outputs. It shows how a ready-made city grid,
 a proposed transport network, and an optional place-based change in economic
 primitives become model-consistent maps, tables, and diagnostics.
@@ -133,10 +133,10 @@ the indicated specification.
 | Spillovers | Scenario | Expected utility | Population | GDP/output | Total land rent |
 |---|---|---:|---:|---:|---:|
 | With | Closed city | +1.013% | 0.000% | +0.897% | +0.897% |
-| With | Open city | approximately 0% | +5.406% | +5.631% | +5.631% |
+| With | Open city | approximately 0% | +5.407% | +5.632% | +5.632% |
 | With | Fixed distribution | +0.977% | 0.000% | +0.184% | 0.000% |
 | Without | Closed city | +0.902% | 0.000% | +0.406% | +0.406% |
-| Without | Open city | approximately 0% | +2.271% | +2.226% | +2.226% |
+| Without | Open city | approximately 0% | +2.270% | +2.225% | +2.225% |
 | Without | Fixed distribution | +0.799% | 0.000% | 0.000% | 0.000% |
 
 The scenarios answer different questions:
@@ -195,7 +195,7 @@ and [`fixed_distribution_welfare_decomposition.csv`](fixed_distribution_welfare_
 
 ## What a full run produces
 
-QUETRANSPORT writes more than the selected examples displayed here:
+QUETRANSPORT-PythonOnly writes more than the selected examples displayed here:
 
 - validation reports for geography, variables, and travel-time matrices;
 - inverted baseline wages, productivity, amenities, and structural density;
@@ -203,8 +203,8 @@ QUETRANSPORT writes more than the selected examples displayed here:
 - aggregate results for all scenarios and spillover specifications;
 - three complementary travel-time measures and a fixed-distribution welfare decomposition;
 - maps of population, employment, wages, floor-space prices, and output; and
-- MATLAB result files and convergence information for reproducibility and
-  diagnosis.
+- serialized Python solver states and convergence information for
+  reproducibility and diagnosis.
 
-See the [main QUETRANSPORT documentation](../README.md#outputs) for the complete
+See the [main QUETRANSPORT-PythonOnly documentation](../README.md) for the complete
 output structure and interpretation guidance.
