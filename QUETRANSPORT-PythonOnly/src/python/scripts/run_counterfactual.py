@@ -27,14 +27,18 @@ def run(project_root: Path, specification: str = "with_spillovers") -> pd.DataFr
     counterfactual_time = read_matrix(project_root, "travel_times_counterfactual.csv", data.n)
     fundamentals_cf = apply_shocks(project_root, data, inversion.fundamentals, config)
     rows, solved = [], {}
+    specification_label = "Main" if specification == "with_spillovers" else "No spillovers"
     for closure in _closures(config):
+        closure_label = closure.capitalize() + " city"
         baseline = solve_closure(
             closure, param, inversion.fundamentals, baseline_time,
             inversion.reservation_utility if closure == "open" else None,
+            progress_label=f"[{specification_label} | Baseline | {closure_label}]",
         )
         counterfactual = solve_closure(
             closure, param, fundamentals_cf, counterfactual_time,
             inversion.reservation_utility if closure == "open" else None,
+            progress_label=f"[{specification_label} | Counterfactual | {closure_label}]",
         )
         if not baseline.converged or not counterfactual.converged:
             raise RuntimeError(f"{closure}-city equilibrium failed to converge")
@@ -45,7 +49,10 @@ def run(project_root: Path, specification: str = "with_spillovers") -> pd.DataFr
         solved[closure] = (baseline, counterfactual)
     fixed_base = solved.get("closed", (None, None))[0]
     if fixed_base is None:
-        fixed_base = solve_closure("closed", param, inversion.fundamentals, baseline_time)
+        fixed_base = solve_closure(
+            "closed", param, inversion.fundamentals, baseline_time,
+            progress_label=f"[{specification_label} | Baseline | Closed city]",
+        )
     fixed_cf = solve_fixed_distribution(
         param, fundamentals_cf, baseline_time, counterfactual_time, fixed_base, data
     )

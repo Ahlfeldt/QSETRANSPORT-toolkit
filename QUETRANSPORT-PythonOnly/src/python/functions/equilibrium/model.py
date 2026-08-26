@@ -47,7 +47,8 @@ def apply_shocks(project_root: Path, data: ModelData, fundamentals: Fundamentals
 
 
 def solve_closure(closure: str, param: Parameters, fundamentals: Fundamentals,
-                  travel_time: np.ndarray, reservation_utility: float | None = None) -> EquilibriumResult:
+                  travel_time: np.ndarray, reservation_utility: float | None = None,
+                  progress_label: str | None = None) -> EquilibriumResult:
     closure = closure.lower()
     if closure not in {"closed", "open"}:
         raise ValueError("closure must be 'closed' or 'open'")
@@ -71,6 +72,7 @@ def solve_closure(closure: str, param: Parameters, fundamentals: Fundamentals,
     prod_kernel = np.exp(-param.productivity_decay * travel_time)
     amen_kernel = np.exp(-param.amenity_decay * travel_time)
     path: list[float] = []
+    label = progress_label or f"{closure.capitalize()} equilibrium"
 
     for iteration in range(1, param.maximum_iterations + 1):
         total_amenity = np.zeros(n)
@@ -133,7 +135,7 @@ def solve_closure(closure: str, param: Parameters, fundamentals: Fundamentals,
         )
         path.append(gap)
         if iteration == 1 or iteration % param.print_every == 0:
-            print(f"{closure.capitalize()} equilibrium iteration {iteration}: max log gap={gap:.3e}")
+            print(f"{label} iteration {iteration}: max log gap={gap:.3e}")
         if gap < param.tolerance:
             wage, q_res, q_com, theta = wage_new, q_res_new, q_com_new, theta_new
             break
