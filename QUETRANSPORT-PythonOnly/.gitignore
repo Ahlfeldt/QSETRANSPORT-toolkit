@@ -48,4 +48,4 @@ outputs/**
 *.gpkg-shm
 
 # Retain the spatial index supplied with the bundled reference network
-!input/raw/networks/counterfactual/CRL-line.qix
+!input/raw/networks/counterfactual/lines.qix

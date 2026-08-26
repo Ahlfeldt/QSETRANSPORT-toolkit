@@ -32,6 +32,8 @@ paths:
   baseline_stations: null
   counterfactual_network: input/raw/networks/counterfactual/lines.shp
   counterfactual_stations: input/raw/networks/counterfactual/stations.shp
+  # For a fundamentals-only counterfactual, set BOTH counterfactual entries to
+  # null. TTMATRIX then copies the complete baseline travel-time matrix.
 
   # USER-PROVIDED TRAVEL-TIME MATRICES --------------------------------------
   # These are inactive because the current application uses ttmatrix.

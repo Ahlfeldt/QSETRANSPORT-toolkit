@@ -160,7 +160,9 @@ With `ttmatrix.source: ttmatrix`:
 
 - both baseline network paths `null` means a direct off-network baseline;
 - both baseline layers supplied means an initial-network baseline;
-- counterfactual layers describe the policy network.
+- both counterfactual layers supplied describe the policy network;
+- both counterfactual paths `null` mean no transport change: the baseline
+  matrix is reused so fundamentals-only counterfactuals can be evaluated.
 
 With `user_provided`, both matrix paths are required and network paths are ignored. Matrices must be finite, nonnegative, labeled and square. The pipeline checks dimensions, IDs, order, diagonal treatment and change distributions before MATLAB.
 

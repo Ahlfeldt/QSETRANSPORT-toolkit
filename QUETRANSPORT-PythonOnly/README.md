@@ -61,6 +61,12 @@ The [input guide](input/README.md) gives the exact geography, field, CRS,
 network and matrix requirements and a checklist for replacing the example
 city.
 
+For a fundamentals-only counterfactual, set both
+`paths.counterfactual_network` and `paths.counterfactual_stations` to `null`.
+TTMATRIX then reuses the complete baseline travel-time matrix, so all simulated
+effects come from the configured productivity, amenity or structural-density
+changes rather than a transport intervention.
+
 The optional
 [`config/project_config.identical_standardized_inputs.yaml`](config/project_config.identical_standardized_inputs.yaml)
 configuration skips GRID and TTMATRIX. It supports controlled solver comparisons

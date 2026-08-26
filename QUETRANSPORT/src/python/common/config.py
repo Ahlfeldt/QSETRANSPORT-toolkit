@@ -140,8 +140,7 @@ def load_config(config_path: str | Path) -> tuple[dict[str, Any], Path]:
     travel_source = str(travel_source).lower()
 
     if travel_source == "ttmatrix":
-        for name in ("paths.counterfactual_network", "paths.counterfactual_stations",
-                     "ttmatrix.off_network_speed_kmh", "ttmatrix.network_speed_kmh"):
+        for name in ("ttmatrix.off_network_speed_kmh", "ttmatrix.network_speed_kmh"):
             _require(config, name)
         baseline_network = config.get("paths", {}).get("baseline_network")
         baseline_stations = config.get("paths", {}).get("baseline_stations")
@@ -149,6 +148,14 @@ def load_config(config_path: str | Path) -> tuple[dict[str, Any], Path]:
             raise ConfigurationError(
                 "Supply both paths.baseline_network and paths.baseline_stations, "
                 "or set both to null."
+            )
+        counterfactual_network = config.get("paths", {}).get("counterfactual_network")
+        counterfactual_stations = config.get("paths", {}).get("counterfactual_stations")
+        if bool(counterfactual_network) != bool(counterfactual_stations):
+            raise ConfigurationError(
+                "Supply both paths.counterfactual_network and "
+                "paths.counterfactual_stations, or set both to null. Null "
+                "counterfactual paths keep baseline travel times unchanged."
             )
         config["ttmatrix"]["mode"] = "generate_from_network"
     elif travel_source == "user_provided":

@@ -21,7 +21,9 @@ Keep `ttmatrix.source: ttmatrix` to construct matrices.
 
 - Leave both baseline network paths `null` for direct off-network baseline travel.
 - Supply both baseline line and station layers when an initial network exists.
-- Supply both counterfactual line and station layers for the policy network.
+- Supply both counterfactual line and station layers for a transport policy.
+- Set both counterfactual paths to `null` for a fundamentals-only experiment;
+  the counterfactual travel-time matrix is then identical to the baseline.
 
 Alternatively, select `user_provided` and configure labeled baseline and counterfactual matrices. In the current TTMATRIX application the user-provided matrix paths correctly remain `null`.
 
