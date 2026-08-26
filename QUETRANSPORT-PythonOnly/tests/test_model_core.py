@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -9,7 +10,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src" / "python"))
 
-from functions.equilibrium import solve_closure, solve_fixed_distribution
+from functions.equilibrium import apply_shocks, solve_closure, solve_fixed_distribution
 from functions.inversion import invert_baseline
 from functions.types import ModelData, Parameters
 
@@ -57,3 +58,28 @@ def test_open_city_runs_with_nonzero_spillovers():
     result = solve_closure("open", p, inversion.fundamentals, travel, inversion.reservation_utility)
     assert result.converged
     assert result.population > 0
+
+
+def test_standardized_primitive_changes_are_applied():
+    d, p = data(), parameters()
+    inversion = invert_baseline(d, np.array([[1.0, 2.0], [2.0, 1.0]]), p)
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        shock_dir = root / "input" / "standardized" / "shocks"
+        shock_dir.mkdir(parents=True)
+        pd.DataFrame({
+            "location_id": ["a", "b"],
+            "productivity_hat": [1.2, 1.0],
+            "amenity_hat": [1.0, 1.0],
+            "structural_density_hat": [1.0, 1.0],
+        }).to_csv(shock_dir / "shocks.csv", index=False)
+
+        shocked = apply_shocks(root, d, inversion.fundamentals, {})
+
+    np.testing.assert_allclose(
+        shocked.productivity,
+        inversion.fundamentals.productivity * np.array([1.2, 1.0]),
+    )
+    np.testing.assert_array_equal(shocked.amenity, inversion.fundamentals.amenity)
+    np.testing.assert_array_equal(shocked.density, inversion.fundamentals.density)
+    assert shocked is not inversion.fundamentals

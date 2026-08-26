@@ -25,7 +25,9 @@ def _max_log_gap(old: np.ndarray, new: np.ndarray, mask: np.ndarray | None = Non
 def apply_shocks(project_root: Path, data: ModelData, fundamentals: Fundamentals,
                  config: dict) -> Fundamentals:
     result = fundamentals.copy()
-    shock_file = project_root / "input" / "standardized" / "scenario" / "primitive_hats.csv"
+    # GRID writes the canonical location-level primitive changes here after
+    # intersecting the user-supplied polygons with the model geography.
+    shock_file = project_root / "input" / "standardized" / "shocks" / "shocks.csv"
     if not shock_file.exists():
         return result
     shocks = pd.read_csv(shock_file, dtype={"location_id": str}).set_index("location_id")
