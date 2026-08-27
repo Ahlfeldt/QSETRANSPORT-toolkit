@@ -9,6 +9,7 @@ from typing import Any
 import geopandas as gpd
 import pandas as pd
 
+from common.geospatial_io import write_geopackage
 from common.identifiers import canonical_series
 
 
@@ -106,7 +107,7 @@ def prepare_grid_inputs(config: dict[str, Any]) -> dict[str, Any]:
     geography_path = geography_dir / "locations.gpkg"
     if geography_path.exists():
         geography_path.unlink()
-    geography.to_file(geography_path, layer="locations", driver="GPKG")
+    write_geopackage(geography, geography_path, layer="locations")
 
     report = {
         "number_of_locations": int(len(locations)),

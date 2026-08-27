@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: Ahlfeldt
     given-names: Gabriel M.
-version: 0.1.0
-date-released: 2026-08-24
+version: 0.1.1
+date-released: 2026-08-27
 repository-code: "https://github.com/Ahlfeldt/QSETRANSPORT-toolkit"
 url: "https://github.com/Ahlfeldt/QSETRANSPORT-toolkit"

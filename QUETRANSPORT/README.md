@@ -2,7 +2,7 @@
 
 ***A Toolkit for Transport Appraisal with a Quantitative Urban Model.***
 
-**Version 0.1.0 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
+**Version 0.1.1 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
 
 > **Download a grid. Configure. Push Run.** QUETRANSPORT is compatible with
 > ready-made population and employment grids for **381 US metropolitan areas**
@@ -138,6 +138,13 @@ Development and testing installation:
 ```powershell
 python -m pip install -r requirements-dev.txt
 ```
+
+### Network-drive compatibility
+
+Version 0.1.1 supports running the toolkit directly from a shared Windows or
+Linux network drive. GeoPackage outputs are first built and validated in local
+temporary storage and then safely published to the project directory. This
+avoids SMB/NFS transaction failures without maintaining a second toolkit copy.
 
 ## Input contract
 
@@ -275,7 +282,7 @@ provides its underlying quantitative urban methodology**.
 ### Toolkit
 
 > Ahlfeldt, Gabriel M. (2026). *QUETRANSPORT: A Toolkit for Transport Appraisal
-> with a Quantitative Urban Model* (Version 0.1.0) [Computer
+> with a Quantitative Urban Model* (Version 0.1.1) [Computer
 > software]. https://github.com/Ahlfeldt/QSETRANSPORT-toolkit/tree/main/QUETRANSPORT
 
 ### Underlying methodology

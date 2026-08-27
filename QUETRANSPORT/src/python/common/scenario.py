@@ -9,6 +9,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
+from common.geospatial_io import write_geopackage
 from common.identifiers import canonical_series
 from common.progress import progress_range
 
@@ -216,7 +217,7 @@ def prepare_primitive_shocks(config: dict[str, Any]) -> dict[str, Any]:
     mapped = target[["location_id", "geometry"]].merge(output, on="location_id", how="left")
     if standardized_geography.exists():
         standardized_geography.unlink()
-    mapped.to_file(standardized_geography, layer="shocks", driver="GPKG")
+    write_geopackage(mapped, standardized_geography, layer="shocks")
 
     changed = ~np.isclose(output.iloc[:, 1:].to_numpy(), 1.0).all(axis=1)
     report = {
