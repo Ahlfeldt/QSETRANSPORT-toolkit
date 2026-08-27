@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from shapely.geometry import Point, Polygon, box
 
+from common.geospatial_io import write_geopackage
 from common.identifiers import canonical_series
 from common.progress import progress_range
 from grid.prepare_grid_inputs import GridInputError
@@ -353,8 +354,8 @@ def generate_grid_inputs(config: dict[str, Any]) -> dict[str, Any]:
     for path in (geography_dir / "locations.gpkg", geography_dir / "centroids.gpkg"):
         if path.exists():
             path.unlink()
-    polygons_out.to_file(geography_dir / "locations.gpkg", layer="locations", driver="GPKG")
-    centroids_out.to_file(geography_dir / "centroids.gpkg", layer="centroids", driver="GPKG")
+    write_geopackage(polygons_out, geography_dir / "locations.gpkg", layer="locations")
+    write_geopackage(centroids_out, geography_dir / "centroids.gpkg", layer="centroids")
     # Shapefile field names are limited to ten characters; use an explicit
     # loc_id alias while preserving location_id in the preferred GeoPackages.
     polygons_out.rename(columns={"location_id": "loc_id"}).to_file(geography_dir / "locations.shp")

@@ -2,6 +2,8 @@
 
 ***Transport appraisal with a quantitative urban model—entirely in Python.***
 
+**Version 0.1.1 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
+
 QUETRANSPORT-PythonOnly implements the complete QUETRANSPORT workflow in
 Python: spatial-data preparation, travel-time construction, baseline inversion,
 quantitative urban-model counterfactuals, validation, tables, and maps.
@@ -121,6 +123,13 @@ python -m pip install -r requirements.txt
 
 No MATLAB installation or MATLAB toolbox is required.
 
+### Network-drive compatibility
+
+Version 0.1.1 supports running directly from a shared Windows or Linux network
+drive. GeoPackage outputs are built and validated in temporary local storage,
+then safely published back to the project directory. This avoids SMB/NFS
+transaction failures without maintaining a second toolkit copy.
+
 ## Validation against QUETRANSPORT
 
 The Python-only workflow was run independently from the same 26 raw files used
@@ -144,7 +153,7 @@ stopping rules rather than different substantive model equations.
 Please cite QUETRANSPORT-PythonOnly in the same way as QUETRANSPORT:
 
 > Ahlfeldt, Gabriel M. (2026). *QUETRANSPORT: A Toolkit for Transport Appraisal
-> with a Quantitative Urban Model* (Version 0.1.0) [Computer software].
+> with a Quantitative Urban Model* (Version 0.1.1) [Computer software].
 > https://github.com/Ahlfeldt/QSETRANSPORT-toolkit
 
 Please also cite the underlying methodology:

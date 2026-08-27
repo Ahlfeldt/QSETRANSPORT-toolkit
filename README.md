@@ -2,7 +2,7 @@
 
 **A platform for deploying user-friendly transport simulation toolkits.**
 
-**Version 0.1.0 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
+**Version 0.1.1 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
 
 QSETRANSPORT is an open, modular platform for studying how transport
 improvements reshape cities and regions. It provides a common home for multiple
@@ -162,6 +162,14 @@ See the [QUETRANSPORT requirements](QUETRANSPORT/README.md#requirements) or
 installation guidance. Future toolkits may have different requirements, which
 will be documented in their own subfolders.
 
+### Network-drive compatibility
+
+Version 0.1.1 supports keeping the toolkit in one shared Windows or Linux
+network location. GeoPackage outputs are assembled and checked in temporary
+local storage before being safely published to the project directory, avoiding
+SMB/NFS transaction failures without requiring a persistent second copy. See
+[Server testing and shared-drive operation](SERVER_TESTING.md).
+
 ## See what QUETRANSPORT produces
 
 The [QUETRANSPORT showcase](QUETRANSPORT/SHOWCASE/) presents representative
@@ -192,7 +200,7 @@ If you use QSETRANSPORT in research, teaching, or applied policy work, please
 cite the platform as:
 
 > Ahlfeldt, Gabriel M. (2026). *QSETRANSPORT: A Platform for User-Friendly
-> Transport Simulation Toolkits* (Version 0.1.0) [Computer software].
+> Transport Simulation Toolkits* (Version 0.1.1) [Computer software].
 > https://github.com/Ahlfeldt/QSETRANSPORT-toolkit
 
 Machine-readable citation metadata are provided in [`CITATION.cff`](CITATION.cff),
