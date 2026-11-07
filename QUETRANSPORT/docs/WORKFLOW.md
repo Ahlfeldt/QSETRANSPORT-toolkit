@@ -28,7 +28,7 @@ graph. The graph can contain disconnected walking components or sparse-graph
 detours; diagnostics record component counts, unreachable OD pairs, and detour
 ratios. These limitations are reported rather than repaired by adding edges.
 
-The selectable `legacy_access_network_egress` method retains the earlier
+The selectable `direct_station_access` method retains the earlier
 toolkit assumptions: straight-line direct travel is always available and each
 OD pair is compared with station access, network travel and egress. It can
 consider all stations and does not use the sparse location-neighbour graph.

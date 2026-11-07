@@ -264,7 +264,7 @@ links, configured endpoint snapping and weighted Dijkstra shortest paths.
 The default `ttmatrix.workers: 1` matches standalone TTMATRIX; `auto` optionally
 uses up to eight processes but can increase memory. The earlier
 straight-line/direct-or-network calculation remains available as
-`legacy_access_network_egress` for reproducibility. The methods have different
+`direct_station_access` for reproducibility. The methods have different
 walking and station-access assumptions and are not numerically equivalent.
 Fine grids may still require substantial RAM and disk. Use `--prepare-only` for
 server workflows.

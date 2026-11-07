@@ -36,7 +36,7 @@ graph defines baseline travel. Sparse walking links can be disconnected or
 generate detours; diagnostics report both conditions and the default
 `unreachable_rule: stop` rejects non-finite matrices.
 
-Select `legacy_access_network_egress` to reproduce the earlier QUETRANSPORT
+Select `direct_station_access` to reproduce the earlier QUETRANSPORT
 method. It compares straight-line travel with access to candidate stations,
 network travel and straight-line egress. It permits unrestricted station
 access by default and therefore embodies different assumptions. The two

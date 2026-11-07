@@ -287,10 +287,12 @@ def generate_travel_times(config: dict[str, Any]) -> dict[str, Any]:
     if offnetwork_speed <= 0 or network_speed <= 0:
         raise MatrixInputError("Both routing speeds must be positive.")
     routing_method = str(tt_cfg.get("routing_method", "standalone_ttmatrix")).lower()
-    if routing_method not in {"standalone_ttmatrix", "legacy_access_network_egress"}:
+    if routing_method == "legacy_access_network_egress":
+        routing_method = "direct_station_access"
+    if routing_method not in {"standalone_ttmatrix", "direct_station_access"}:
         raise MatrixInputError(
             "ttmatrix.routing_method must be standalone_ttmatrix or "
-            "legacy_access_network_egress."
+            "direct_station_access."
         )
     configured_candidates = tt_cfg.get(
         "legacy_station_candidates", tt_cfg.get("station_candidates", "all")

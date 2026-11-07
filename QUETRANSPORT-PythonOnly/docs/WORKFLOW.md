@@ -29,7 +29,7 @@ three station links and five walking-neighbour links per location, minute edge
 weights, and NetworkX Dijkstra. With no baseline network, it uses the same
 walking graph without network or station edges. Diagnostics expose disconnected
 components, unreachable OD pairs and extreme detours rather than adding edges.
-The selectable `legacy_access_network_egress` method retains straight-line
+The selectable `direct_station_access` method retains straight-line
 direct travel and the earlier station access--network--egress calculation. The
 two methods are not numerically equivalent.
 

@@ -118,7 +118,7 @@ ttmatrix:
   network_speed_kmh: 150
 
   # Reproduce standalone TTMATRIX by default. Use
-  # legacy_access_network_egress only to reproduce earlier toolkit routing.
+  # direct_station_access only to reproduce earlier toolkit routing.
   routing_method: standalone_ttmatrix
   point_station_neighbors: 3
   point_walking_neighbors: 5

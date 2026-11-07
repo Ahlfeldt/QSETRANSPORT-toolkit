@@ -32,7 +32,11 @@ to eight spawned processes. Multiple processes can help larger graphs but also
 duplicate interpreter and graph memory; they should be benchmarked on the
 machine used for production.
 
-## `legacy_access_network_egress`
+## `direct_station_access`
+
+This is the descriptive name for the routing method used by earlier toolkit
+versions. Existing configurations that use `legacy_access_network_egress`
+remain valid as a backward-compatible alias.
 
 This option retains the earlier QUETRANSPORT method. Straight-line direct
 travel is available for every OD pair. Network alternatives combine
@@ -79,7 +83,7 @@ the complete process tree. Times include matrix construction and CSV export.
 | Method | Baseline routing | Counterfactual routing | Total matrix stage | Peak memory |
 |---|---:|---:|---:|---:|
 | `standalone_ttmatrix`, 1 worker | 16.18 s | 32.35 s | 63.75 s | 1,219 MB |
-| `legacy_access_network_egress`, 1 worker | 0.01 s | 2.26 s | 17.48 s | 1,026 MB |
+| `direct_station_access`, 1 worker | 0.01 s | 2.26 s | 17.48 s | 1,026 MB |
 
 For the standalone method, the existing application produced one connected
 walking component, zero unreachable pairs, a counterfactual 99th-percentile

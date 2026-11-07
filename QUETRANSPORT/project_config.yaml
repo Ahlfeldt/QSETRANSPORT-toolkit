@@ -131,7 +131,7 @@ ttmatrix:
   network_speed_kmh: 33
 
   # Default: reproduce the standalone TTMATRIX augmented graph. The alternative
-  # legacy_access_network_egress retains the earlier QUETRANSPORT calculation.
+  # direct_station_access retains the earlier QUETRANSPORT calculation.
   routing_method: standalone_ttmatrix
 
   # Standalone TTMATRIX graph settings. Locations connect by walking to their
@@ -147,7 +147,7 @@ ttmatrix:
   # processes on a large machine; this can increase peak memory substantially.
   workers: 1
 
-  # Used only by legacy_access_network_egress. "all" reproduces that method's
+  # Used only by direct_station_access. "all" reproduces that method's
   # unrestricted station access; a positive integer restricts its candidates.
   legacy_station_candidates: all
 

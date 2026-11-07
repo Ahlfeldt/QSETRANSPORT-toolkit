@@ -3,7 +3,7 @@
 ## 0.1.3 — 2026-11-07
 
 - Made standalone TTMATRIX graph construction and Dijkstra routing the default.
-- Retained the previous travel constructor as `legacy_access_network_egress`
+- Retained the previous travel constructor as `direct_station_access`
   and added disconnected-component and detour diagnostics.
 
 ## 0.1.2 — 2026-11-07

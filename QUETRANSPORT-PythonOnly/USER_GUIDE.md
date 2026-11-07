@@ -30,7 +30,7 @@ Alternatively, select `user_provided` and configure labeled baseline and counter
 The default `standalone_ttmatrix` method reproduces the standalone augmented
 graph, including three station links, five walking-neighbour links and weighted
 Dijkstra routing. A no-network baseline uses the corresponding walking graph.
-Select `legacy_access_network_egress` only to reproduce the earlier toolkit
+Select `direct_station_access` only to reproduce the earlier toolkit
 method, which always permits straight-line direct travel and uses different
 station-access assumptions. The methods are not numerically equivalent.
 

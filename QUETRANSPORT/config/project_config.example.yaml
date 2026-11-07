@@ -119,7 +119,7 @@ ttmatrix:
 
   # Default standalone method: three station links, five walking-neighbour
   # links, one-metre endpoint snapping, and weighted Dijkstra shortest paths.
-  # Select legacy_access_network_egress to reproduce earlier toolkit routing.
+  # Select direct_station_access to reproduce earlier toolkit routing.
   routing_method: standalone_ttmatrix
   point_station_neighbors: 3
   point_walking_neighbors: 5

@@ -169,12 +169,12 @@ def load_config(config_path: str | Path) -> tuple[dict[str, Any], Path]:
         routing_method = str(
             config["ttmatrix"].get("routing_method", "standalone_ttmatrix")
         ).lower()
-        if routing_method not in {
-            "standalone_ttmatrix", "legacy_access_network_egress"
-        }:
+        if routing_method == "legacy_access_network_egress":
+            routing_method = "direct_station_access"
+        if routing_method not in {"standalone_ttmatrix", "direct_station_access"}:
             raise ConfigurationError(
                 "ttmatrix.routing_method must be standalone_ttmatrix or "
-                "legacy_access_network_egress."
+                "direct_station_access."
             )
         config["ttmatrix"]["routing_method"] = routing_method
         for setting in ("point_station_neighbors", "point_walking_neighbors"):

@@ -137,7 +137,7 @@ Version 0.1.3 makes the standalone TTMATRIX augmented graph the default:
 locations connect to three nearest stations and five nearest locations before
 weighted Dijkstra shortest paths are calculated. The earlier straight-line
 direct-or-network calculation remains selectable as
-`legacy_access_network_egress`. The methods make different assumptions and are
+`direct_station_access`. The methods make different assumptions and are
 not numerically equivalent. One worker matches standalone TTMATRIX; `auto`
 optionally uses up to eight processes but can increase memory.
 
