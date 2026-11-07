@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import os
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -114,8 +116,10 @@ def _travel_matrix_with_network(
     offnetwork_speed: float,
     network_speed: float,
     label: str,
+    station_candidates: int | None = 3,
+    workers: int = 1,
 ) -> tuple[np.ndarray, int]:
-    """Combine direct travel with access, network travel, and egress."""
+    """Combine walking and network travel using TTMATRIX candidate access."""
     if not network_path.is_file() or not station_path.is_file():
         raise MatrixInputError(
             f"{label.capitalize()} network and station files do not exist: "
@@ -133,15 +137,56 @@ def _travel_matrix_with_network(
     access = cdist(centroid_coords, station_coords) / (offnetwork_speed * 1000.0 / 60.0)
     network_minutes = station_distance / (network_speed * 1000.0 / 60.0)
 
-    result = direct_minutes.copy()
-    for origin_station in progress_range(range(len(stations)), total=len(stations), description=f"TTMATRIX {label}: OD alternatives", unit="station"):
-        for destination_station in range(len(stations)):
-            candidate = (
-                access[:, origin_station, None]
-                + network_minutes[origin_station, destination_station]
-                + access[:, destination_station][None, :]
+    # TTMATRIX connects locations to candidate stations and selects the best
+    # access--network--egress path, while direct walking remains available.
+    station_count = len(stations)
+    candidate_count = station_count if station_candidates is None else min(
+        max(int(station_candidates), 1), station_count
+    )
+    nearest = np.argpartition(access, candidate_count - 1, axis=1)[:, :candidate_count]
+    nearest_access = np.take_along_axis(access, nearest, axis=1)
+    order = np.argsort(nearest_access, axis=1, kind="stable")
+    nearest = np.take_along_axis(nearest, order, axis=1)
+    nearest_access = np.take_along_axis(nearest_access, order, axis=1)
+
+    result = np.empty_like(direct_minutes)
+    location_count = len(centroid_coords)
+    worker_count = max(1, min(int(workers), location_count))
+    block_size = max(1, (location_count + worker_count * 8 - 1) // (worker_count * 8))
+    blocks = [(start, min(start + block_size, location_count))
+              for start in range(0, location_count, block_size)]
+
+    def route_block(bounds: tuple[int, int]) -> tuple[int, np.ndarray]:
+        start, stop = bounds
+        routed = np.empty((stop - start, location_count), dtype=float)
+        for row, origin in enumerate(range(start, stop)):
+            origin_stations = nearest[origin]
+            best_to_station = np.min(
+                nearest_access[origin, :, None]
+                + network_minutes[origin_stations, :], axis=0,
             )
-            result = np.minimum(result, candidate)
+            network_route = np.min(
+                best_to_station[nearest] + nearest_access, axis=1,
+            )
+            routed[row] = np.minimum(direct_minutes[origin], network_route)
+        return start, routed
+
+    if worker_count == 1:
+        routed_blocks = map(route_block, blocks)
+        for start, routed in progress_range(
+            routed_blocks, total=len(blocks),
+            description=f"TTMATRIX {label}: route origins", unit="block"
+        ):
+            result[start:start + len(routed)] = routed
+    else:
+        with ThreadPoolExecutor(max_workers=worker_count) as executor:
+            routed_blocks = executor.map(route_block, blocks)
+            for start, routed in progress_range(
+                routed_blocks, total=len(blocks),
+                description=f"TTMATRIX {label}: route origins", unit="block"
+            ):
+                result[start:start + len(routed)] = routed
+    result = 0.5 * (result + result.T)
     return result, int(len(stations))
 
 
@@ -164,6 +209,14 @@ def generate_travel_times(config: dict[str, Any]) -> dict[str, Any]:
     network_speed = float(tt_cfg["network_speed_kmh"])
     if offnetwork_speed <= 0 or network_speed <= 0:
         raise MatrixInputError("Both routing speeds must be positive.")
+    configured_candidates = tt_cfg.get("station_candidates", "all")
+    station_candidates = None if str(configured_candidates).lower() == "all" else int(configured_candidates)
+    if station_candidates is not None and station_candidates < 1:
+        raise MatrixInputError("ttmatrix.station_candidates must be a positive integer or 'all'.")
+    configured_workers = tt_cfg.get("workers", "auto")
+    workers = min(os.cpu_count() or 1, 8) if str(configured_workers).lower() == "auto" else int(configured_workers)
+    if workers < 1:
+        raise MatrixInputError("ttmatrix.workers must be a positive integer or 'auto'.")
     direct_distance = cdist(coords, coords)
     direct_minutes = direct_distance / (offnetwork_speed * 1000.0 / 60.0)
 
@@ -174,7 +227,8 @@ def generate_travel_times(config: dict[str, Any]) -> dict[str, Any]:
     if baseline_network and baseline_stations:
         baseline, baseline_station_count = _travel_matrix_with_network(
             direct_minutes, coords, Path(baseline_network), Path(baseline_stations),
-            routing_crs, offnetwork_speed, network_speed, "baseline"
+            routing_crs, offnetwork_speed, network_speed, "baseline",
+            station_candidates, workers,
         )
         baseline_definition = "minimum of direct travel and baseline access-network-egress travel"
     else:
@@ -192,7 +246,8 @@ def generate_travel_times(config: dict[str, Any]) -> dict[str, Any]:
         counterfactual, counterfactual_station_count = _travel_matrix_with_network(
             direct_minutes, coords,
             Path(counterfactual_network), Path(counterfactual_stations),
-            routing_crs, offnetwork_speed, network_speed, "counterfactual"
+            routing_crs, offnetwork_speed, network_speed, "counterfactual",
+            station_candidates, workers,
         )
         counterfactual_definition = (
             "minimum of direct travel and counterfactual access-network-egress travel"
@@ -232,6 +287,9 @@ def generate_travel_times(config: dict[str, Any]) -> dict[str, Any]:
         "counterfactual_definition": counterfactual_definition,
         "off_network_speed_kmh": offnetwork_speed,
         "network_speed_kmh": network_speed,
+        "routing_method": "ttmatrix_origin_routing",
+        "station_candidates": "all" if station_candidates is None else station_candidates,
+        "workers": workers,
         "routing_crs": str(routing_crs),
         "baseline_mean_minutes": float(baseline.mean()),
         "counterfactual_mean_minutes": float(counterfactual.mean()),

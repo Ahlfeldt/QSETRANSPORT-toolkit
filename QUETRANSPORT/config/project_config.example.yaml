@@ -117,6 +117,10 @@ ttmatrix:
   # also includes access and egress at off_network_speed_kmh.
   network_speed_kmh: 150
 
+  # Exact default; use a positive integer for approximate nearest-station routing.
+  station_candidates: all
+  workers: auto
+
   time_unit: minutes
 
   # Treatment of travel within the same model cell.

@@ -46,6 +46,8 @@ DEFAULTS: dict[str, Any] = {
         "intrazonal_rule": "keep",
         "intrazonal_minutes": 0.0,
         "unreachable_rule": "stop",
+        "station_candidates": "all",
+        "workers": "auto",
     },
     "model": {
         "city_closure": "both",

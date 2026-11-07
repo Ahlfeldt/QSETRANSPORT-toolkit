@@ -23,6 +23,10 @@ network paths mean direct off-network baseline travel. Null counterfactual
 network paths copy the complete baseline matrix for a fundamentals-only
 experiment.
 
+Network routing follows the TTMATRIX access--network--egress structure and is
+parallelized over origins. `station_candidates: all` is exact; a positive
+integer is an explicit nearest-station approximation for large applications.
+
 ## Stage 3: optional primitive changes
 
 Policy polygons provide multiplicative changes in productivity, amenities and
@@ -58,4 +62,4 @@ scenario also reports a worker-welfare decomposition.
 - `python src/python/run_pipeline.py --model-only --skip-maps`: solver comparison without map regeneration.
 
 Dense travel and commuting matrices scale with the square of the number of
-locations. Use a coarser grid or a machine with more memory for large cities.
+locations, but routing no longer constructs one such matrix per station pair.

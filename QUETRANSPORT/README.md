@@ -2,7 +2,7 @@
 
 ***A Toolkit for Transport Appraisal with a Quantitative Urban Model.***
 
-**Version 0.1.1 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
+**Version 0.1.2 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
 
 > **Download a grid. Configure. Push Run.** QUETRANSPORT is compatible with
 > ready-made population and employment grids for **381 US metropolitan areas**
@@ -256,7 +256,13 @@ python -m pip install -r requirements-dev.txt
 python -m pytest tests\python
 ```
 
-Dense matrices require N² storage and routing can be slow. Fine grids may require substantial RAM, disk and runtime. Use `--prepare-only` for server workflows.
+Dense matrices require N² storage. Version 0.1.2 replaces the former
+station-pair-by-station-pair construction with parallel TTMATRIX-style origin
+routing. The default `ttmatrix.station_candidates: all` is exact and reproduces
+the former matrices; a positive integer restricts access and egress to that
+many nearest stations for an explicitly approximate, faster large-city run.
+`ttmatrix.workers: auto` uses up to eight logical processors. Fine grids may
+still require substantial RAM and disk. Use `--prepare-only` for server workflows.
 
 ## Documentation
 
@@ -282,7 +288,7 @@ provides its underlying quantitative urban methodology**.
 ### Toolkit
 
 > Ahlfeldt, Gabriel M. (2026). *QUETRANSPORT: A Toolkit for Transport Appraisal
-> with a Quantitative Urban Model* (Version 0.1.1) [Computer
+> with a Quantitative Urban Model* (Version 0.1.2) [Computer
 > software]. https://github.com/Ahlfeldt/QSETRANSPORT-toolkit/tree/main/QUETRANSPORT
 
 ### Underlying methodology

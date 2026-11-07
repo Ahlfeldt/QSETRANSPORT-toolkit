@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="QUETRANSPORT interactive transport appraisal, part of the QSETRANSPORT toolkit family.">
+  <title>QUETRANSPORT Interactive City Simulator</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>[hidden]{display:none!important}:root{font-family:Lato,Arial,Helvetica,sans-serif}.topbar{height:64px;background:#fff;color:#292929;padding:10px 22px;border-bottom:1px solid #e2e2e2}.topbar h1,.controls h2,.result-head h2{font-family:Lato,Arial,Helvetica,sans-serif;font-weight:700}.topbar h1{font-size:1.3rem}.topbar .eyebrow{color:#555;font-size:.65rem}.runtime{color:#555}.workspace{height:calc(100vh - 64px)}.map-toolbar{align-items:end}.map-legend{grid-template-columns:auto 96px auto;align-items:center;gap:5px;padding-bottom:8px;font-size:.68rem;color:#43515d}.map-legend:not([hidden]){display:grid}.map-legend i{width:96px;height:10px;border:1px solid #9aa9b1;background:linear-gradient(90deg,#176b87,#f7f7f2 50%,#b74338)}.map-legend.level i{background:linear-gradient(90deg,#eef5f6,#176b87)}</style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">QSETRANSPORT toolkit family</div>
+      <h1>QUETRANSPORT interactive city simulator</h1>
+    </div>
+    <div class="runtime"><span id="runtime-dot"></span><span id="runtime-label">Loading Python model…</span></div>
+    <div class="mobile-only mobile-actions">
+      <button id="mobile-fullscreen" class="mobile-fullscreen" type="button" aria-label="Enter full screen">Full screen</button>
+      <button id="mobile-setup" class="mobile-setup" type="button" aria-controls="scenario-controls" aria-expanded="false">Setup</button>
+    </div>
+  </header>
+  <div id="fullscreen-tools" class="fullscreen-tools" aria-label="Full-screen controls">
+    <button id="fullscreen-setup" type="button">Setup</button>
+    <button id="fullscreen-exit" type="button">Exit full screen</button>
+  </div>
+
+  <main class="workspace">
+    <div id="mobile-backdrop" class="mobile-only mobile-backdrop" hidden></div>
+    <button id="mobile-run" class="mobile-only primary mobile-run" type="button" disabled>Prepare London</button>
+    <aside class="controls" id="scenario-controls" aria-label="Scenario controls">
+      <div class="mobile-only drawer-head"><strong>Scenario setup</strong><button id="mobile-close" type="button" aria-label="Close scenario setup">×</button></div>
+      <section>
+        <div class="step">1</div><h2>Choose a city and grid</h2>
+        <label>Geography collection<select id="collection"><option value="global">Global cities</option><option value="us">US metropolitan areas</option></select></label>
+        <label id="region-filter"><span id="region-label">Region</span><select id="region"><option>All regions</option></select></label>
+        <label><span id="country-label">Country</span><select id="country"><option>All countries</option></select></label>
+        <label><span id="city-label">Global city</span><select id="city"><option value="61">London, United Kingdom</option></select></label>
+        <div class="twocol">
+          <label>Cell shape<select id="cell-shape"><option value="hexagon">Hexagon</option><option value="square">Square</option></select></label>
+          <label>Cell size<select id="cell-size"><option value="0.5">0.5 km</option><option value="1">1 km</option><option value="2" selected>2 km</option><option value="3">3 km</option><option value="5">5 km</option><option value="10">10 km</option></select></label>
+        </div>
+        <div class="meter"><span id="cell-count">Select a city to estimate retained cells</span><strong id="location-limit">Maximum 2,000</strong></div>
+      </section>
+
+      <section>
+        <div class="step">2</div><h2>Set travel speeds</h2>
+        <div class="twocol">
+          <label>Off-network<input id="off-speed" type="number" min="1" max="200" value="20"><small>km/h</small></label>
+          <label>On-network<input id="on-speed" type="number" min="1" max="400" value="33"><small>km/h</small></label>
+        </div>
+        <label>Model specification
+          <select id="spillovers">
+            <option value="with" selected>With productivity and amenity spillovers</option>
+            <option value="without">Without productivity and amenity spillovers</option>
+          </select>
+        </label>
+      </section>
+
+      <section>
+        <div class="step">3</div><h2>Optional baseline network</h2>
+        <label>Network lines (.zip)<input id="baseline-network" type="file" accept=".zip,application/zip"><small>ZIP containing .shp, .shx, .dbf and preferably .prj</small></label>
+        <label>Stations (.zip, optional)<input id="baseline-stations" type="file" accept=".zip,application/zip"><small>Leave empty for continuous access to the network</small></label>
+        <button id="clear-baseline" class="secondary" type="button" hidden>Remove baseline network</button>
+        <p id="baseline-status" class="help">No baseline network supplied.</p>
+      </section>
+
+      <section>
+        <div class="step">4</div><h2>Draw the intervention</h2>
+        <p class="help">Use the map tools to draw one or more transport lines and optional stations. Draw polygons for changes in fundamentals.</p>
+        <div class="legend-row"><i class="line-key"></i>Transport line <i class="station-key"></i>Optional station <i class="shock-key"></i>Fundamental change</div>
+        <button id="clear-drawings" class="secondary" type="button">Clear drawings</button>
+      </section>
+
+      <section id="shock-editor" hidden>
+        <div class="step">5</div><h2>Set polygon changes</h2>
+        <div class="twocol">
+          <label>Productivity<input id="prod-change" type="number" value="0" step="1"><small>%</small></label>
+          <label>Amenities<input id="amen-change" type="number" value="0" step="1"><small>%</small></label>
+        </div>
+        <label>Structural density<input id="density-change" type="number" value="0" step="1"><small>%</small></label>
+        <button id="save-shock" class="secondary" type="button">Apply to selected polygon</button>
+      </section>
+
+      <button id="run" class="primary" type="button" disabled>Prepare London</button>
+      <p id="run-note" class="run-note">Baseline travel is direct off-network travel. Structural parameters use the toolkit defaults.</p>
+
+      <section class="credits">
+        <p><strong>QUETRANSPORT</strong> is part of the wider QSETRANSPORT toolkit family. It builds on the
+          <a href="https://github.com/Ahlfeldt/ARSW2015-toolkit" target="_blank" rel="noopener">ARSW2015 toolkit</a>
+          (© Gabriel M. Ahlfeldt, Stephen J. Redding, Daniel M. Sturm and Nikolaus Wolf) and the
+          <a href="https://github.com/Ahlfeldt/AABPL-toolkit" target="_blank" rel="noopener">AAB-PL toolkit</a>
+          (© Gabriel M. Ahlfeldt, Thilo N. H. Albers and Kristian Behrens).</p>
+        <p class="toolkit-links"><a href="https://github.com/Ahlfeldt/QSETRANSPORT-toolkit/tree/main/QUETRANSPORT" target="_blank" rel="noopener">QUETRANSPORT toolkit</a></p>
+        <p><strong>Please cite results generated by this toolkit:</strong><br>
+          Ahlfeldt, Redding, Sturm and Wolf (2015), “The Economics of Density: Evidence from the Berlin Wall,” <em>Econometrica</em> 83(6), 2127–2189.
+          <a href="https://doi.org/10.3982/ECTA10876" target="_blank" rel="noopener">doi:10.3982/ECTA10876</a><br>
+          Ahlfeldt, Albers and Behrens (2026), “Prime Locations,” <em>American Economic Review: Insights</em> 8(3), 374–392.
+          <a href="https://doi.org/10.1257/aeri.20240193" target="_blank" rel="noopener">doi:10.1257/aeri.20240193</a></p>
+      </section>
+    </aside>
+
+    <section class="mainstage">
+      <div id="map" aria-label="Interactive city and results map"></div>
+      <div class="map-toolbar">
+        <label>Outcome<select id="outcome"><option value="population">Population</option><option value="employment">Employment</option><option value="wage">Wages</option><option value="rent_residential">Residential rent</option><option value="rent_commercial">Commercial rent</option><option value="output">Output</option><option value="annual_land_rent">Land rent</option></select></label>
+        <label>View<select id="result-view"><option value="baseline">Baseline</option><option value="counterfactual">Counterfactual</option><option value="pct" selected>Percentage change</option><option value="absolute">Absolute change</option></select></label>
+        <div id="map-legend" class="map-legend" hidden><span id="legend-min"></span><i></i><span id="legend-max"></span></div>
+      </div>
+      <div class="status-panel" id="status-panel"><strong>Start with a city</strong><span>The AABPL grid will appear here. Your model grid size is determined by the selected cell size.</span></div>
+      <div class="results" id="results" hidden>
+        <button id="results-handle" class="mobile-only results-handle" type="button" aria-expanded="true"><span></span>Results</button>
+        <div class="result-head"><div><span class="eyebrow">Scenario results</span><h2 id="result-title">London</h2></div><div class="tabs"><button class="active" data-closure="closed">Closed city</button><button data-closure="open">Open city</button><button data-closure="fixed_distribution">Fixed distribution</button></div></div>
+        <div id="cards" class="cards"></div>
+        <div class="download-row"><button id="download-zip" class="secondary">Download run package</button><span id="convergence"></span></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <script src="https://unpkg.com/shpjs@6.2.0/dist/shp.js"></script>
+  <script src="https://unpkg.com/@turf/turf@7.2.0/turf.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

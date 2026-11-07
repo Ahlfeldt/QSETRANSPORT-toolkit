@@ -16,6 +16,12 @@ GRID reads source polygons, maps declared attributes, creates square/hexagonal c
 
 TTMATRIX either constructs baseline/counterfactual travel times from centroids and network layers or validates labeled user matrices. A missing baseline network produces direct off-network baseline travel. If both counterfactual network paths are null, TTMATRIX copies the baseline matrix, allowing a fundamentals-only counterfactual. Both scenarios use the same centroids, units and routing assumptions.
 
+Network routing follows the TTMATRIX access--network--egress structure and is
+parallelized over origins. With `station_candidates: all` (the default), every
+station remains available and the result is numerically equivalent to the
+former exhaustive station-pair calculation. A positive integer selects only
+that many nearest access and egress stations and is an explicit approximation.
+
 **Gate:** square finite matrices with the exact location IDs and order.
 
 ## Stage 3: optional primitive shocks
@@ -64,4 +70,6 @@ reported from the developer residual.
 
 ## Reproducibility and scale
 
-Every stage is controlled by the root configuration. Dense matrices scale as N squared. `--prepare-only` supports preparation on one machine and MATLAB on a server while preserving the standardized contract.
+Every stage is controlled by the root configuration. Dense output matrices
+scale as N squared, while routing avoids constructing an N-by-N candidate
+matrix for every station pair. `--prepare-only` supports server preparation.

@@ -130,6 +130,11 @@ ttmatrix:
   # also includes access and egress at off_network_speed_kmh.
   network_speed_kmh: 33
 
+  # Exact default: each location may use any station. For very large grids,
+  # enter a positive integer (for example 3) to use only that many nearest stations.
+  station_candidates: all
+  workers: auto
+
   time_unit: minutes
 
   # Treatment of travel within the same model cell.

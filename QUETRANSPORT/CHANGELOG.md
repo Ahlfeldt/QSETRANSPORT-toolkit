@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2 — 2026-11-07
+
+- Replaced exhaustive station-pair matrix construction with parallel
+  TTMATRIX-style origin routing.
+- Retained exact all-stations routing as the default and added an explicit
+  nearest-station approximation for very large applications.
+- Verified exact travel matrices and economically unchanged model outputs.
+
 ## 0.1.1 — 2026-08-27
 
 - Added network-safe GeoPackage publication for Windows SMB and Linux NFS

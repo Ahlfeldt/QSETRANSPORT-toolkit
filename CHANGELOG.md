@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2 — 2026-11-07
+
+- Introduced parallel TTMATRIX-style origin routing in both toolkit variants.
+- Preserved exact all-stations results by default and documented an optional
+  nearest-station approximation for very large applications.
+- Added the tested Python-only browser webtool distribution.
+
 ## 0.1.1 — 2026-08-27
 
 - Added network-safe GeoPackage publication for Windows SMB and Linux NFS
