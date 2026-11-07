@@ -69,6 +69,8 @@ or consult the [Python-only codebook](docs/QUETRANSPORT_PYTHON_CODEBOOK.md).
 The [showcase](SHOWCASE/) follows the workflow visually from downloading a
 ready-made city grid, through supplying a transport network and an optional
 primitive-change polygon, to the maps and aggregate tables produced by a run.
+The maps distinguish the existing network in thin grey, added links in thicker
+black, and removed links as dashed red where applicable.
 
 For a fundamentals-only counterfactual, set both
 `paths.counterfactual_network` and `paths.counterfactual_stations` to `null`.

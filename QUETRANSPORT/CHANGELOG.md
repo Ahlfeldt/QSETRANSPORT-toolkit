@@ -6,6 +6,8 @@
   constructor, with its walking links, station connectors and Dijkstra routing.
 - Retained the previous access--network--egress method as an explicit legacy
   option and added disconnected-component and detour diagnostics.
+- Updated imposed-change and economic-result maps to show the existing network
+  in thin grey, added links in thicker black, and removed links as dashed red.
 
 ## 0.1.2 — 2026-11-07
 

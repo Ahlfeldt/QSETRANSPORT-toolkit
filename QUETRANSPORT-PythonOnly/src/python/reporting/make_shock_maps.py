@@ -11,7 +11,7 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.colors import TwoSlopeNorm
 from matplotlib.lines import Line2D
 
-from reporting.make_maps import _transport_innovation
+from reporting.make_maps import _transport_layers
 
 
 class ShockMapError(ValueError):
@@ -45,7 +45,9 @@ def make_shock_maps(
     if mapped.crs is None or source.crs is None:
         raise ShockMapError("Shock maps require coordinate reference systems.")
     source = source.to_crs(mapped.crs)
-    innovation = _transport_innovation(config, mapped.crs)
+    baseline_network, added_links, removed_links = _transport_layers(
+        config, mapped.crs
+    )
 
     # Convert multiplicative hats to percentage changes for intuitive legends.
     for column, _, _ in MAP_DEFINITIONS:
@@ -102,10 +104,21 @@ def make_shock_maps(
         source.boundary.plot(ax=axis, color="#555555", linewidth=0.35, alpha=0.75)
         mapped.boundary.plot(ax=axis, color="#777777", linewidth=0.06, alpha=0.25)
 
-        # A white casing preserves visibility over both red and blue impact cells.
-        if innovation is not None:
-            innovation.plot(ax=axis, color="white", linewidth=1.4, zorder=8)
-            innovation.plot(ax=axis, color="#111111", linewidth=0.7, zorder=9)
+        # White casings preserve network visibility over both red and blue cells.
+        if baseline_network is not None:
+            baseline_network.plot(ax=axis, color="white", linewidth=1.4, zorder=8)
+            baseline_network.plot(
+                ax=axis, color="#888888", linewidth=0.55, zorder=9
+            )
+        if added_links is not None:
+            added_links.plot(ax=axis, color="white", linewidth=2.6, zorder=10)
+            added_links.plot(ax=axis, color="#111111", linewidth=1.3, zorder=11)
+        if removed_links is not None:
+            removed_links.plot(ax=axis, color="white", linewidth=2.6, zorder=12)
+            removed_links.plot(
+                ax=axis, color="#9a3d3d", linewidth=1.3,
+                linestyle="--", zorder=13,
+            )
 
         axis.set_title(f"Imposed change in {title.lower()}", fontsize=14, pad=10)
         axis.set_axis_off()
@@ -116,11 +129,25 @@ def make_shock_maps(
                 label="Policy-polygon boundary",
             )
         ]
-        if innovation is not None:
+        if baseline_network is not None:
             legend_handles.append(
                 Line2D(
-                    [0], [0], color="#111111", linewidth=1.0,
-                    label="Transport innovation",
+                    [0], [0], color="#888888", linewidth=1.0,
+                    label="Existing network",
+                )
+            )
+        if added_links is not None:
+            legend_handles.append(
+                Line2D(
+                    [0], [0], color="#111111", linewidth=2.0,
+                    label="Added links",
+                )
+            )
+        if removed_links is not None:
+            legend_handles.append(
+                Line2D(
+                    [0], [0], color="#9a3d3d", linewidth=2.0,
+                    linestyle="--", label="Removed links",
                 )
             )
         axis.legend(

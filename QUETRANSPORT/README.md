@@ -179,7 +179,9 @@ With `user_provided`, both matrix paths are required and network paths are ignor
 
 Transport can be combined with multiplicative changes in productivity, amenities and structural density. Supply a non-overlapping shapefile or GeoPackage and map its fields under `scenario`. A value of `1.10` means +10%; `1.00` is neutral. GRID area-interpolates policy polygons to model geography and treats uncovered area as unchanged. Set `scenario.shocks_shapefile: null` for transport only.
 
-Separate PDF and PNG maps show each imposed change with the policy boundary and transport innovation.
+Separate PDF and PNG maps show each imposed change with the policy boundary,
+the existing network in thin grey, added links in thicker black, and removed
+links as dashed red where applicable.
 
 ## Economic workflow
 
@@ -209,7 +211,7 @@ results table from an illustrative application.
 | `outputs/simulation/` | main scenario results, welfare decomposition, and aggregate comparison |
 | `outputs/no_spillovers/` | separately inverted and simulated zero-spillover sensitivity results |
 | `outputs/tables/` | aggregate outcome tables |
-| `outputs/maps/` | transport innovation, imposed shocks and effects |
+| `outputs/maps/` | existing and changed network links, imposed shocks and effects |
 
 Local outputs include population, employment, wages, effective wages,
 floor-space prices, floor space, output and land rent. Aggregate reports

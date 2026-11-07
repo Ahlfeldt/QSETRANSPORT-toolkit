@@ -8,6 +8,7 @@ from shapely.geometry import LineString, box
 
 from common.scenario import ScenarioInputError, prepare_primitive_shocks
 from reporting.make_shock_maps import make_shock_maps
+from reporting.make_maps import _transport_layers
 
 
 class PolygonPrimitiveShockTests(unittest.TestCase):
@@ -94,6 +95,32 @@ class PolygonPrimitiveShockTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ScenarioInputError, "overlap"):
             prepare_primitive_shocks(config)
+
+    def test_transport_layers_separate_existing_added_and_removed_links(self):
+        temporary, root, config = self.make_project()
+        self.addCleanup(temporary.cleanup)
+        baseline_path = root / "baseline.gpkg"
+        counterfactual_path = root / "counterfactual.gpkg"
+        gpd.GeoDataFrame(
+            geometry=[LineString([(0, 5), (10, 5)]), LineString([(0, 8), (5, 8)])],
+            crs="EPSG:3857",
+        ).to_file(baseline_path, driver="GPKG")
+        gpd.GeoDataFrame(
+            geometry=[LineString([(0, 5), (20, 5)])],
+            crs="EPSG:3857",
+        ).to_file(counterfactual_path, driver="GPKG")
+        config["ttmatrix"]["source"] = "ttmatrix"
+        config["paths"]["baseline_network"] = str(baseline_path)
+        config["paths"]["counterfactual_network"] = str(counterfactual_path)
+
+        existing, added, removed = _transport_layers(config, "EPSG:3857")
+
+        self.assertIsNotNone(existing)
+        self.assertIsNotNone(added)
+        self.assertIsNotNone(removed)
+        self.assertEqual(len(existing), 2)
+        self.assertGreater(float(added.geometry.length.sum()), 8.0)
+        self.assertGreater(float(removed.geometry.length.sum()), 3.0)
 
     def test_missing_configured_field_stops(self):
         temporary, root, config = self.make_project()

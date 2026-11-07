@@ -1,4 +1,4 @@
-"""Map equilibrium impacts and overlay the counterfactual transport innovation."""
+"""Map equilibrium impacts and overlay baseline and changed transport links."""
 from __future__ import annotations
 
 import argparse
@@ -77,31 +77,26 @@ def classified_values(
     return classified, labels
 
 
-def _transport_innovation(config: dict, map_crs) -> gpd.GeoDataFrame | None:
-    """Return counterfactual links that are absent from the baseline network.
+def _transport_layers(
+    config: dict, map_crs
+) -> tuple[gpd.GeoDataFrame | None, gpd.GeoDataFrame | None, gpd.GeoDataFrame | None]:
+    """Return baseline, added, and removed links for map overlays.
 
-    If the baseline network paths are null, the entire counterfactual network
-    is the innovation. When both networks exist, common links are removed in a
-    projected CRS with a small one-metre tolerance for coordinate differences.
+    If the baseline network is null, the entire counterfactual network is
+    added. If the counterfactual network is null, it inherits the baseline and
+    there are no changed links. When both exist, their differences are computed
+    in a projected CRS with a one-metre tolerance for coordinate differences.
     User-provided travel-time matrices need not have network geometry, in which
     case the maps are produced without an overlay.
     """
     if config["ttmatrix"]["source"] != "ttmatrix":
-        return None
-
-    counter_path = config["paths"].get("counterfactual_network")
-    if not counter_path or not Path(counter_path).is_file():
-        return None
-    counter = gpd.read_file(counter_path)
-    if counter.empty:
-        return None
-    if counter.crs is None:
-        raise ValueError("Counterfactual network has no CRS and cannot be mapped.")
+        return None, None, None
 
     baseline_path = config["paths"].get("baseline_network")
-    if not baseline_path:
-        innovation = counter[["geometry"]].copy()
-    else:
+    counter_path = config["paths"].get("counterfactual_network")
+    baseline = None
+    counter = None
+    if baseline_path:
         baseline_path = Path(baseline_path)
         if not baseline_path.is_file():
             raise FileNotFoundError(f"Configured baseline network not found: {baseline_path}")
@@ -109,24 +104,46 @@ def _transport_innovation(config: dict, map_crs) -> gpd.GeoDataFrame | None:
         if baseline.crs is None:
             raise ValueError("Baseline network has no CRS and cannot be compared.")
         if baseline.empty:
-            innovation = counter[["geometry"]].copy()
-        else:
-            projected_crs = counter.estimate_utm_crs()
-            if projected_crs is None:
-                raise ValueError("Could not choose a projected CRS for network comparison.")
-            counter_projected = counter.to_crs(projected_crs)
-            baseline_union = baseline.to_crs(projected_crs).geometry.union_all()
-            baseline_buffer = baseline_union.buffer(1.0)
-            innovation = counter_projected[["geometry"]].copy()
-            innovation["geometry"] = innovation.geometry.map(
-                lambda line: line.difference(baseline_buffer)
-            )
-            innovation = innovation.loc[
-                innovation.geometry.notna() & ~innovation.geometry.is_empty
-            ]
-    if innovation.empty:
-        return None
-    return innovation.to_crs(map_crs)
+            baseline = None
+    if counter_path:
+        counter_path = Path(counter_path)
+        if not counter_path.is_file():
+            raise FileNotFoundError(f"Configured counterfactual network not found: {counter_path}")
+        counter = gpd.read_file(counter_path)
+        if counter.crs is None:
+            raise ValueError("Counterfactual network has no CRS and cannot be mapped.")
+        if counter.empty:
+            counter = None
+
+    baseline_map = baseline[["geometry"]].to_crs(map_crs) if baseline is not None else None
+    if counter is None:
+        return baseline_map, None, None
+    if baseline is None:
+        return None, counter[["geometry"]].to_crs(map_crs), None
+
+    projected_crs = counter.estimate_utm_crs() or baseline.estimate_utm_crs()
+    if projected_crs is None:
+        raise ValueError("Could not choose a projected CRS for network comparison.")
+    counter_projected = counter[["geometry"]].to_crs(projected_crs)
+    baseline_projected = baseline[["geometry"]].to_crs(projected_crs)
+    baseline_buffer = baseline_projected.geometry.union_all().buffer(1.0)
+    counter_buffer = counter_projected.geometry.union_all().buffer(1.0)
+
+    added = counter_projected.copy()
+    added["geometry"] = added.geometry.map(lambda line: line.difference(baseline_buffer))
+    added = added.loc[~added.geometry.is_empty].dropna(subset=["geometry"])
+    removed = baseline_projected.copy()
+    removed["geometry"] = removed.geometry.map(lambda line: line.difference(counter_buffer))
+    removed = removed.loc[~removed.geometry.is_empty].dropna(subset=["geometry"])
+    added_map = added.to_crs(map_crs) if not added.empty else None
+    removed_map = removed.to_crs(map_crs) if not removed.empty else None
+    return baseline_map, added_map, removed_map
+
+
+def _transport_innovation(config: dict, map_crs) -> gpd.GeoDataFrame | None:
+    """Return added links; retained for callers using the earlier helper."""
+    _, added, _ = _transport_layers(config, map_crs)
+    return added
 
 
 def _outcomes_for_results(results: pd.DataFrame) -> tuple[dict[str, str], bool]:
@@ -169,7 +186,9 @@ def make_maps(config_path: str | Path) -> None:
     )
     geometry = gpd.read_file(geography_path, layer="locations")
     geometry["location_id"] = canonical_series(geometry["location_id"])
-    innovation = _transport_innovation(config, geometry.crs)
+    baseline_network, added_links, removed_links = _transport_layers(
+        config, geometry.crs
+    )
 
     map_dir = Path(config["paths"]["output"]) / "maps"
     map_dir.mkdir(parents=True, exist_ok=True)
@@ -236,11 +255,19 @@ def make_maps(config_path: str | Path) -> None:
                 ax=ax,
             )
 
-            # A white casing keeps the innovation visible over dark and light
-            # impact classes; the black center line identifies the added link.
-            if innovation is not None:
-                innovation.plot(ax=ax, color="white", linewidth=1.4, zorder=5)
-                innovation.plot(ax=ax, color="#111111", linewidth=0.7, zorder=6)
+            # White casings preserve network visibility over every impact class.
+            if baseline_network is not None:
+                baseline_network.plot(ax=ax, color="white", linewidth=1.4, zorder=4)
+                baseline_network.plot(ax=ax, color="#888888", linewidth=0.55, zorder=5)
+            if added_links is not None:
+                added_links.plot(ax=ax, color="white", linewidth=2.6, zorder=6)
+                added_links.plot(ax=ax, color="#111111", linewidth=1.3, zorder=7)
+            if removed_links is not None:
+                removed_links.plot(ax=ax, color="white", linewidth=2.6, zorder=8)
+                removed_links.plot(
+                    ax=ax, color="#9a3d3d", linewidth=1.3,
+                    linestyle="--", zorder=9,
+                )
 
             ax.set_axis_off()
             ax.set_title(f"{title} — {closure} city", fontsize=14, pad=10)
@@ -248,14 +275,28 @@ def make_maps(config_path: str | Path) -> None:
                 Patch(facecolor=cmap(i), edgecolor="none", label=label)
                 for i, label in enumerate(labels)
             ]
-            if innovation is not None:
+            if baseline_network is not None:
+                handles.append(
+                    Line2D(
+                        [0], [0], color="#888888", linewidth=1.0,
+                        label="Existing network",
+                    )
+                )
+            if added_links is not None:
                 handles.append(
                     Line2D(
                         [0],
                         [0],
                         color="#111111",
-                        linewidth=1.0,
-                        label="Transport innovation",
+                        linewidth=2.0,
+                        label="Added links",
+                    )
+                )
+            if removed_links is not None:
+                handles.append(
+                    Line2D(
+                        [0], [0], color="#9a3d3d", linewidth=2.0,
+                        linestyle="--", label="Removed links",
                     )
                 )
             ax.legend(

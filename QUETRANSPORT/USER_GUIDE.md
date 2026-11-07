@@ -95,7 +95,7 @@ Before interpreting results, inspect:
 
 - `outputs/diagnostics/grid_validation.json`;
 - travel-matrix dimensions, IDs and change diagnostics;
-- transport-innovation and imposed-shock maps;
+- imposed-shock and outcome maps with existing, added and removed network links;
 - inversion and equilibrium iteration/gap output;
 - baseline employment reproduction and accounting checks;
 - aggregate tables and closure-specific maps.

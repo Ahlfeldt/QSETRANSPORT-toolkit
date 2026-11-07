@@ -59,6 +59,8 @@ Python writes local outcomes, aggregate tables, diagnostics and maps. Aggregate
 reporting distinguishes immediate commute-time change, post-relocation
 commute-time change and total commuter-minutes change. The fixed-distribution
 scenario also reports a worker-welfare decomposition.
+Maps show the existing network in thin grey, added links in thicker black, and
+removed links as dashed red where applicable.
 
 ## Execution options
 
