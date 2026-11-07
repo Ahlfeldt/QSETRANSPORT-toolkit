@@ -19,13 +19,20 @@ Population and employment are extensive quantities and are allocated by source-a
 
 Keep `ttmatrix.source: ttmatrix` to construct matrices.
 
-- Leave both baseline network paths `null` for direct off-network baseline travel.
+- Leave both baseline network paths `null` when there is no initial network.
 - Supply both baseline line and station layers when an initial network exists.
 - Supply both counterfactual line and station layers for a transport policy.
 - Set both counterfactual paths to `null` for a fundamentals-only experiment;
   the counterfactual travel-time matrix is then identical to the baseline.
 
 Alternatively, select `user_provided` and configure labeled baseline and counterfactual matrices. In the current TTMATRIX application the user-provided matrix paths correctly remain `null`.
+
+The default `standalone_ttmatrix` method reproduces the standalone augmented
+graph, including three station links, five walking-neighbour links and weighted
+Dijkstra routing. A no-network baseline uses the corresponding walking graph.
+Select `legacy_access_network_egress` only to reproduce the earlier toolkit
+method, which always permits straight-line direct travel and uses different
+station-access assumptions. The methods are not numerically equivalent.
 
 ### Optional shocks
 

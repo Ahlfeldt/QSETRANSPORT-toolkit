@@ -83,9 +83,10 @@ below. Intermediate files remain available for validation and reproducibility.
 ## Example application
 
 The example converts source data into **3,577 hexagonal model locations** with a
-target cell size of 0.5 km. The baseline uses direct centroid-to-centroid travel
-at the configured off-network speed. The counterfactual introduces a transport
-network with **41 stations**. QUETRANSPORT then inverts the baseline economy and
+target cell size of 0.5 km. Under the default standalone TTMATRIX method, the
+no-network baseline uses the configured nearest-neighbour walking graph. The
+counterfactual introduces a transport network with **41 stations**.
+QUETRANSPORT then inverts the baseline economy and
 evaluates closed-city, open-city, and fixed-distribution scenarios. It also
 re-inverts the baseline and repeats all three with productivity and amenity
 spillovers switched off.

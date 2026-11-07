@@ -16,7 +16,7 @@ if str(FUNCTIONS) not in sys.path:
 
 from ttmatrix.generate_travel_times import (
     _network_station_distances,
-    _travel_matrix_with_network,
+    _travel_matrix_with_network_legacy,
     generate_travel_times,
 )
 
@@ -31,17 +31,22 @@ class FundamentalsOnlyTravelTimesTests(unittest.TestCase):
                 geometry=[LineString([(0, 0), (3000, 0)])], crs="EPSG:3857"
             )
             stations = gpd.GeoDataFrame(
-                geometry=[Point(0, 0), Point(1500, 0), Point(3000, 0)], crs="EPSG:3857"
+                geometry=[Point(0, 0), Point(1500, 0), Point(3000, 0)],
+                crs="EPSG:3857",
             )
             network.to_file(network_path, driver="GPKG")
             stations.to_file(station_path, driver="GPKG")
             coordinates = np.array([[0, 500], [1000, 500], [2000, 500], [3000, 500]])
             direct = cdist(coordinates, coordinates) / (5 * 1000 / 60)
-            routed, _ = _travel_matrix_with_network(
+
+            routed, _ = _travel_matrix_with_network_legacy(
                 direct, coordinates, network_path, station_path, "EPSG:3857",
                 5, 60, "test", station_candidates=None, workers=2,
             )
-            station_distance, snapped = _network_station_distances(network, stations, "reference")
+
+            station_distance, snapped = _network_station_distances(
+                network, stations, "reference"
+            )
             station_coordinates = np.array([[point.x, point.y] for point in snapped])
             access = cdist(coordinates, station_coordinates) / (5 * 1000 / 60)
             network_minutes = station_distance / (60 * 1000 / 60)
@@ -54,6 +59,7 @@ class FundamentalsOnlyTravelTimesTests(unittest.TestCase):
                         + network_minutes[origin_station, destination_station]
                         + access[:, destination_station][None, :],
                     )
+
             np.testing.assert_allclose(routed, exhaustive, atol=1e-12)
 
     def test_nearest_station_router_is_symmetric_and_keeps_direct_walking(self):
@@ -65,14 +71,17 @@ class FundamentalsOnlyTravelTimesTests(unittest.TestCase):
                 geometry=[LineString([(0, 0), (3000, 0)])], crs="EPSG:3857"
             ).to_file(network_path, driver="GPKG")
             gpd.GeoDataFrame(
-                geometry=[Point(0, 0), Point(1500, 0), Point(3000, 0)], crs="EPSG:3857"
+                geometry=[Point(0, 0), Point(1500, 0), Point(3000, 0)],
+                crs="EPSG:3857",
             ).to_file(station_path, driver="GPKG")
             coordinates = np.array([[0, 500], [1000, 500], [2000, 500], [3000, 500]])
             direct = cdist(coordinates, coordinates) / (5 * 1000 / 60)
-            routed, _ = _travel_matrix_with_network(
+
+            routed, _ = _travel_matrix_with_network_legacy(
                 direct, coordinates, network_path, station_path, "EPSG:3857",
                 5, 60, "test", station_candidates=1, workers=1,
             )
+
             np.testing.assert_allclose(routed, routed.T, atol=1e-12)
             self.assertTrue(np.all(routed <= direct + 1e-12))
 

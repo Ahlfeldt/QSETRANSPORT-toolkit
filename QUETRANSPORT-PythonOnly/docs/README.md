@@ -14,6 +14,8 @@ files from the mixed Python–MATLAB version are required.
 
 - [Data contract](DATA_CONTRACT.md): schemas, identifiers, interpolation and validation.
 - [Workflow](WORKFLOW.md): GRID, TTMATRIX, Python inversion, simulation and reporting.
+- [TTMATRIX routing](TTMATRIX_ROUTING.md): selectable graph assumptions,
+  diagnostics, validation and routing-only benchmarks.
 - [Model architecture](MODEL_ARCHITECTURE.md): modules, closures and numerical conventions.
 
 The documents describe the implemented Python-only interface. Generated data

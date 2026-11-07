@@ -14,13 +14,26 @@ GRID reads source polygons, maps declared attributes, creates square/hexagonal c
 
 ## Stage 2: TTMATRIX
 
-TTMATRIX either constructs baseline/counterfactual travel times from centroids and network layers or validates labeled user matrices. A missing baseline network produces direct off-network baseline travel. If both counterfactual network paths are null, TTMATRIX copies the baseline matrix, allowing a fundamentals-only counterfactual. Both scenarios use the same centroids, units and routing assumptions.
+TTMATRIX either constructs baseline/counterfactual travel times from centroids
+and network layers or validates labeled user matrices. Null counterfactual
+paths copy the complete baseline matrix for a fundamentals-only experiment.
 
-Network routing follows the TTMATRIX access--network--egress structure and is
-parallelized over origins. With `station_candidates: all` (the default), every
-station remains available and the result is numerically equivalent to the
-former exhaustive station-pair calculation. A positive integer selects only
-that many nearest access and egress stations and is an explicit approximation.
+The default `standalone_ttmatrix` method matches the standalone toolkit. It
+snaps nearby network endpoints, retains every network coordinate as a graph
+vertex, connects stations to their nearest network vertex with the documented
+small positive weight, connects each location to three stations and five
+location neighbours at walking speed, and runs weighted NetworkX Dijkstra from
+each origin. A no-network baseline uses the same nearest-neighbour walking
+graph. The graph can contain disconnected walking components or sparse-graph
+detours; diagnostics record component counts, unreachable OD pairs, and detour
+ratios. These limitations are reported rather than repaired by adding edges.
+
+The selectable `legacy_access_network_egress` method retains the earlier
+toolkit assumptions: straight-line direct travel is always available and each
+OD pair is compared with station access, network travel and egress. It can
+consider all stations and does not use the sparse location-neighbour graph.
+The two routing methods are substantively different and are not described as
+numerically equivalent.
 
 **Gate:** square finite matrices with the exact location IDs and order.
 
@@ -72,4 +85,5 @@ reported from the developer residual.
 
 Every stage is controlled by the root configuration. Dense output matrices
 scale as N squared, while routing avoids constructing an N-by-N candidate
-matrix for every station pair. `--prepare-only` supports server preparation.
+matrix for every station pair. `--prepare-only` supports preparation on one
+machine and MATLAB on a server while preserving the standardized contract.

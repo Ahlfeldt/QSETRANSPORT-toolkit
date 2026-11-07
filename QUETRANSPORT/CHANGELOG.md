@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.3 — 2026-11-07
+
+- Made the standalone TTMATRIX augmented-graph methodology the default travel
+  constructor, with its walking links, station connectors and Dijkstra routing.
+- Retained the previous access--network--egress method as an explicit legacy
+  option and added disconnected-component and detour diagnostics.
+
 ## 0.1.2 — 2026-11-07
 
 - Replaced exhaustive station-pair matrix construction with parallel

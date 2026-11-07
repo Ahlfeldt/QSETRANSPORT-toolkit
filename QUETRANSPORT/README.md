@@ -2,7 +2,7 @@
 
 ***A Toolkit for Transport Appraisal with a Quantitative Urban Model.***
 
-**Version 0.1.2 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
+**Version 0.1.3 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
 
 > **Download a grid. Configure. Push Run.** QUETRANSPORT is compatible with
 > ready-made population and employment grids for **381 US metropolitan areas**
@@ -165,7 +165,9 @@ See [`docs/DATA_CONTRACT.md`](docs/DATA_CONTRACT.md) for schemas, units, formula
 
 With `ttmatrix.source: ttmatrix`:
 
-- both baseline network paths `null` means a direct off-network baseline;
+- both baseline network paths `null` means a no-network baseline: the default
+  method uses its nearest-neighbour walking graph, while the legacy method uses
+  direct centroid-to-centroid travel;
 - both baseline layers supplied means an initial-network baseline;
 - both counterfactual layers supplied describe the policy network;
 - both counterfactual paths `null` mean no transport change: the baseline
@@ -256,13 +258,16 @@ python -m pip install -r requirements-dev.txt
 python -m pytest tests\python
 ```
 
-Dense matrices require N² storage. Version 0.1.2 replaces the former
-station-pair-by-station-pair construction with parallel TTMATRIX-style origin
-routing. The default `ttmatrix.station_candidates: all` is exact and reproduces
-the former matrices; a positive integer restricts access and egress to that
-many nearest stations for an explicitly approximate, faster large-city run.
-`ttmatrix.workers: auto` uses up to eight logical processors. Fine grids may
-still require substantial RAM and disk. Use `--prepare-only` for server workflows.
+Dense matrices require N² storage. Version 0.1.3 makes the standalone TTMATRIX
+augmented graph the default: three nearest-station links, five walking-neighbour
+links, configured endpoint snapping and weighted Dijkstra shortest paths.
+The default `ttmatrix.workers: 1` matches standalone TTMATRIX; `auto` optionally
+uses up to eight processes but can increase memory. The earlier
+straight-line/direct-or-network calculation remains available as
+`legacy_access_network_egress` for reproducibility. The methods have different
+walking and station-access assumptions and are not numerically equivalent.
+Fine grids may still require substantial RAM and disk. Use `--prepare-only` for
+server workflows.
 
 ## Documentation
 
@@ -288,7 +293,7 @@ provides its underlying quantitative urban methodology**.
 ### Toolkit
 
 > Ahlfeldt, Gabriel M. (2026). *QUETRANSPORT: A Toolkit for Transport Appraisal
-> with a Quantitative Urban Model* (Version 0.1.2) [Computer
+> with a Quantitative Urban Model* (Version 0.1.3) [Computer
 > software]. https://github.com/Ahlfeldt/QSETRANSPORT-toolkit/tree/main/QUETRANSPORT
 
 ### Underlying methodology

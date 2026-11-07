@@ -2,7 +2,7 @@
 
 ***Transport appraisal with a quantitative urban model—entirely in Python.***
 
-**Version 0.1.2 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
+**Version 0.1.3 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
 
 QUETRANSPORT-PythonOnly implements the complete QUETRANSPORT workflow in
 Python: spatial-data preparation, travel-time construction, baseline inversion,
@@ -125,17 +125,21 @@ No MATLAB installation or MATLAB toolbox is required.
 
 ### Network-drive compatibility
 
-Version 0.1.1 supports running directly from a shared Windows or Linux network
-drive. GeoPackage outputs are built and validated in temporary local storage,
-then safely published back to the project directory. This avoids SMB/NFS
-transaction failures without maintaining a second toolkit copy.
+Version 0.1.1 allows the toolkit to remain in a single shared Windows or Linux
+network location. GeoPackage outputs are built and validated in temporary local
+storage, then safely published back to the project directory. This avoids
+transaction failures on SMB and NFS drives without creating a persistent second
+copy of the toolkit. See the repository's server-testing guide for details.
 
 ### Scalable TTMATRIX routing
 
-Version 0.1.2 replaces station-pair-by-station-pair construction with parallel
-TTMATRIX-style origin routing. `ttmatrix.station_candidates: all` is exact and
-reproduces the former matrices; a positive integer provides an explicitly
-approximate nearest-station option for exceptionally large applications.
+Version 0.1.3 makes the standalone TTMATRIX augmented graph the default:
+locations connect to three nearest stations and five nearest locations before
+weighted Dijkstra shortest paths are calculated. The earlier straight-line
+direct-or-network calculation remains selectable as
+`legacy_access_network_egress`. The methods make different assumptions and are
+not numerically equivalent. One worker matches standalone TTMATRIX; `auto`
+optionally uses up to eight processes but can increase memory.
 
 ## Validation against QUETRANSPORT
 
@@ -160,7 +164,7 @@ stopping rules rather than different substantive model equations.
 Please cite QUETRANSPORT-PythonOnly in the same way as QUETRANSPORT:
 
 > Ahlfeldt, Gabriel M. (2026). *QUETRANSPORT: A Toolkit for Transport Appraisal
-> with a Quantitative Urban Model* (Version 0.1.2) [Computer software].
+> with a Quantitative Urban Model* (Version 0.1.3) [Computer software].
 > https://github.com/Ahlfeldt/QSETRANSPORT-toolkit
 
 Please also cite the underlying methodology:

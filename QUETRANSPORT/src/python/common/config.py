@@ -46,8 +46,15 @@ DEFAULTS: dict[str, Any] = {
         "intrazonal_rule": "keep",
         "intrazonal_minutes": 0.0,
         "unreachable_rule": "stop",
-        "station_candidates": "all",
-        "workers": "auto",
+        "routing_method": "standalone_ttmatrix",
+        "point_station_neighbors": 3,
+        "point_walking_neighbors": 5,
+        "snap_tolerance_m": 1.0,
+        "station_split_buffer_m": 0.5,
+        "station_connector_minutes": 0.0001,
+        "detour_warning_ratio": 2.0,
+        "workers": 1,
+        "legacy_station_candidates": "all",
     },
     "model": {
         "city_closure": "both",
@@ -159,6 +166,23 @@ def load_config(config_path: str | Path) -> tuple[dict[str, Any], Path]:
                 "paths.counterfactual_stations, or set both to null. Null "
                 "counterfactual paths keep baseline travel times unchanged."
             )
+        routing_method = str(
+            config["ttmatrix"].get("routing_method", "standalone_ttmatrix")
+        ).lower()
+        if routing_method not in {
+            "standalone_ttmatrix", "legacy_access_network_egress"
+        }:
+            raise ConfigurationError(
+                "ttmatrix.routing_method must be standalone_ttmatrix or "
+                "legacy_access_network_egress."
+            )
+        config["ttmatrix"]["routing_method"] = routing_method
+        for setting in ("point_station_neighbors", "point_walking_neighbors"):
+            if int(config["ttmatrix"].get(setting, 1)) < 1:
+                raise ConfigurationError(f"ttmatrix.{setting} must be a positive integer.")
+        configured_workers = config["ttmatrix"].get("workers", "auto")
+        if str(configured_workers).lower() != "auto" and int(configured_workers) < 1:
+            raise ConfigurationError("ttmatrix.workers must be a positive integer or auto.")
         config["ttmatrix"]["mode"] = "generate_from_network"
     elif travel_source == "user_provided":
         for name in ("paths.baseline_matrix", "paths.counterfactual_matrix"):

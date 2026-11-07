@@ -2,7 +2,7 @@
 
 **A platform for deploying user-friendly transport simulation toolkits.**
 
-**Version 0.1.2 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
+**Version 0.1.3 (beta)** · **Author: [Gabriel M. Ahlfeldt](https://www.ahlfeldt.com/)**
 
 QSETRANSPORT is an open, modular platform for studying how transport
 improvements reshape cities and regions. It provides a common home for multiple
@@ -200,7 +200,7 @@ If you use QSETRANSPORT in research, teaching, or applied policy work, please
 cite the platform as:
 
 > Ahlfeldt, Gabriel M. (2026). *QSETRANSPORT: A Platform for User-Friendly
-> Transport Simulation Toolkits* (Version 0.1.2) [Computer software].
+> Transport Simulation Toolkits* (Version 0.1.3) [Computer software].
 > https://github.com/Ahlfeldt/QSETRANSPORT-toolkit
 
 Machine-readable citation metadata are provided in [`CITATION.cff`](CITATION.cff),

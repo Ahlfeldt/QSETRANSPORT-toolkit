@@ -5,6 +5,7 @@ import json
 import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 
 import geopandas as gpd
@@ -18,6 +19,11 @@ from shapely.ops import nearest_points, split, unary_union
 from common.identifiers import canonical_series
 from common.progress import progress_range
 from ttmatrix.prepare_travel_times import MatrixInputError
+from ttmatrix.standalone_graph import (
+    build_standalone_graph,
+    build_standalone_walking_graph,
+    standalone_shortest_path_matrix,
+)
 
 
 def _projected_crs(points: gpd.GeoDataFrame, configured: str | None):
@@ -107,7 +113,7 @@ def _network_station_distances(
     return distances, snapped
 
 
-def _travel_matrix_with_network(
+def _travel_matrix_with_network_legacy(
     direct_minutes: np.ndarray,
     centroid_coords: np.ndarray,
     network_path: Path,
@@ -137,8 +143,8 @@ def _travel_matrix_with_network(
     access = cdist(centroid_coords, station_coords) / (offnetwork_speed * 1000.0 / 60.0)
     network_minutes = station_distance / (network_speed * 1000.0 / 60.0)
 
-    # TTMATRIX connects locations to candidate stations and selects the best
-    # access--network--egress path, while direct walking remains available.
+    # The legacy method retains direct walking and minimizes over configured
+    # station access, network travel, and egress alternatives.
     station_count = len(stations)
     candidate_count = station_count if station_candidates is None else min(
         max(int(station_candidates), 1), station_count
@@ -157,16 +163,19 @@ def _travel_matrix_with_network(
               for start in range(0, location_count, block_size)]
 
     def route_block(bounds: tuple[int, int]) -> tuple[int, np.ndarray]:
+        """Route one origin block; NumPy kernels release the GIL to workers."""
         start, stop = bounds
         routed = np.empty((stop - start, location_count), dtype=float)
         for row, origin in enumerate(range(start, stop)):
             origin_stations = nearest[origin]
             best_to_station = np.min(
                 nearest_access[origin, :, None]
-                + network_minutes[origin_stations, :], axis=0,
+                + network_minutes[origin_stations, :],
+                axis=0,
             )
             network_route = np.min(
-                best_to_station[nearest] + nearest_access, axis=1,
+                best_to_station[nearest] + nearest_access,
+                axis=1,
             )
             routed[row] = np.minimum(direct_minutes[origin], network_route)
         return start, routed
@@ -186,8 +195,76 @@ def _travel_matrix_with_network(
                 description=f"TTMATRIX {label}: route origins", unit="block"
             ):
                 result[start:start + len(routed)] = routed
+
+    # Symmetric speeds and networks imply a symmetric matrix. Averaging removes
+    # only floating-point ordering noise and makes CSV comparisons reproducible.
     result = 0.5 * (result + result.T)
     return result, int(len(stations))
+
+
+def _travel_matrix_with_standalone_ttmatrix(
+    direct_minutes: np.ndarray,
+    centroid_coords: np.ndarray,
+    network_path: Path,
+    station_path: Path,
+    routing_crs,
+    offnetwork_speed: float,
+    network_speed: float,
+    label: str,
+    settings: dict[str, Any],
+) -> tuple[np.ndarray, int, dict[str, Any]]:
+    """Route one scenario with the public standalone TTMATRIX graph method."""
+    if not network_path.is_file() or not station_path.is_file():
+        raise MatrixInputError(
+            f"{label.capitalize()} network and station files do not exist: "
+            f"{network_path}; {station_path}"
+        )
+    network = gpd.read_file(network_path).to_crs(routing_crs)
+    stations = gpd.read_file(station_path).to_crs(routing_crs)
+    if stations.empty:
+        raise MatrixInputError(f"{label.capitalize()} station file contains no stations.")
+    if not stations.geom_type.eq("Point").all():
+        stations["geometry"] = stations.geometry.centroid
+
+    graph, graph_report = build_standalone_graph(
+        centroid_coords,
+        network,
+        stations,
+        walking_speed_kmh=offnetwork_speed,
+        network_speed_kmh=network_speed,
+        snap_tolerance_metres=float(settings.get("snap_tolerance_m", 1.0)),
+        station_split_buffer_metres=float(settings.get("station_split_buffer_m", 0.5)),
+        point_station_neighbours=int(settings.get("point_station_neighbors", 3)),
+        point_walking_neighbours=int(settings.get("point_walking_neighbors", 5)),
+        station_connector_minutes=float(settings.get("station_connector_minutes", 0.0001)),
+    )
+    matrix, path_report = standalone_shortest_path_matrix(
+        graph,
+        len(centroid_coords),
+        label,
+        workers=int(settings.get("workers", 1)),
+    )
+    unreachable_pairs = int((~np.isfinite(matrix)).sum())
+    if unreachable_pairs and settings.get("unreachable_rule", "stop") == "stop":
+        raise MatrixInputError(
+            f"Standalone TTMATRIX left {unreachable_pairs} {label} OD pairs "
+            "unreachable. This can arise from disconnected walking components; "
+            "inspect the network or increase ttmatrix.point_walking_neighbors."
+        )
+
+    # Sparse walking links can create detours relative to straight-line travel.
+    valid = np.isfinite(matrix) & (direct_minutes > 0)
+    detour_ratios = matrix[valid] / direct_minutes[valid]
+    detour_warning_ratio = float(settings.get("detour_warning_ratio", 2.0))
+    diagnostics = {
+        **graph_report,
+        **path_report,
+        "detour_ratio_p99": float(np.quantile(detour_ratios, 0.99)) if detour_ratios.size else 1.0,
+        "detour_ratio_max": float(detour_ratios.max()) if detour_ratios.size else 1.0,
+        "detour_warning_ratio": detour_warning_ratio,
+        "detour_warning_pairs": int((detour_ratios > detour_warning_ratio).sum()),
+    }
+    return matrix, int(len(stations)), diagnostics
 
 
 def generate_travel_times(config: dict[str, Any]) -> dict[str, Any]:
@@ -209,32 +286,87 @@ def generate_travel_times(config: dict[str, Any]) -> dict[str, Any]:
     network_speed = float(tt_cfg["network_speed_kmh"])
     if offnetwork_speed <= 0 or network_speed <= 0:
         raise MatrixInputError("Both routing speeds must be positive.")
-    configured_candidates = tt_cfg.get("station_candidates", "all")
+    routing_method = str(tt_cfg.get("routing_method", "standalone_ttmatrix")).lower()
+    if routing_method not in {"standalone_ttmatrix", "legacy_access_network_egress"}:
+        raise MatrixInputError(
+            "ttmatrix.routing_method must be standalone_ttmatrix or "
+            "legacy_access_network_egress."
+        )
+    configured_candidates = tt_cfg.get(
+        "legacy_station_candidates", tt_cfg.get("station_candidates", "all")
+    )
     station_candidates = None if str(configured_candidates).lower() == "all" else int(configured_candidates)
     if station_candidates is not None and station_candidates < 1:
-        raise MatrixInputError("ttmatrix.station_candidates must be a positive integer or 'all'.")
-    configured_workers = tt_cfg.get("workers", "auto")
+        raise MatrixInputError(
+            "ttmatrix.legacy_station_candidates must be a positive integer or 'all'."
+        )
+    configured_workers = tt_cfg.get("workers", 1)
     workers = min(os.cpu_count() or 1, 8) if str(configured_workers).lower() == "auto" else int(configured_workers)
     if workers < 1:
         raise MatrixInputError("ttmatrix.workers must be a positive integer or 'auto'.")
+    routing_settings = dict(tt_cfg)
+    routing_settings["workers"] = workers
+    direct_started = perf_counter()
     direct_distance = cdist(coords, coords)
     direct_minutes = direct_distance / (offnetwork_speed * 1000.0 / 60.0)
+    direct_seconds = perf_counter() - direct_started
 
-    # Null baseline paths mean direct off-network baseline travel. If both files
-    # are supplied, route through the initial network using the same algorithm.
+    # Null baseline paths mean no initial transport network. The standalone
+    # method uses its walking graph; the legacy method uses direct distances.
     baseline_network = config["paths"].get("baseline_network")
     baseline_stations = config["paths"].get("baseline_stations")
+    baseline_started = perf_counter()
+    baseline_routing_diagnostics: dict[str, Any] = {"network_supplied": False}
     if baseline_network and baseline_stations:
-        baseline, baseline_station_count = _travel_matrix_with_network(
-            direct_minutes, coords, Path(baseline_network), Path(baseline_stations),
-            routing_crs, offnetwork_speed, network_speed, "baseline",
-            station_candidates, workers,
-        )
-        baseline_definition = "minimum of direct travel and baseline access-network-egress travel"
+        if routing_method == "standalone_ttmatrix":
+            baseline, baseline_station_count, baseline_routing_diagnostics = (
+                _travel_matrix_with_standalone_ttmatrix(
+                    direct_minutes, coords, Path(baseline_network), Path(baseline_stations),
+                    routing_crs, offnetwork_speed, network_speed, "baseline", routing_settings,
+                )
+            )
+            baseline_definition = "standalone TTMATRIX augmented-graph shortest paths"
+        else:
+            baseline, baseline_station_count = _travel_matrix_with_network_legacy(
+                direct_minutes, coords, Path(baseline_network), Path(baseline_stations),
+                routing_crs, offnetwork_speed, network_speed, "baseline",
+                station_candidates, workers,
+            )
+            baseline_routing_diagnostics = {"network_supplied": True}
+            baseline_definition = "legacy direct-or-access-network-egress minimum"
     else:
-        baseline = direct_minutes.copy()
+        if routing_method == "standalone_ttmatrix":
+            walking_graph, graph_report = build_standalone_walking_graph(
+                coords,
+                offnetwork_speed,
+                point_walking_neighbours=int(tt_cfg.get("point_walking_neighbors", 5)),
+            )
+            baseline, path_report = standalone_shortest_path_matrix(
+                walking_graph, len(coords), "baseline", workers=workers
+            )
+            baseline_routing_diagnostics = {**graph_report, **path_report}
+            if path_report["unreachable_pairs"] and tt_cfg.get("unreachable_rule", "stop") == "stop":
+                raise MatrixInputError(
+                    f"Standalone TTMATRIX left {path_report['unreachable_pairs']} baseline "
+                    "OD pairs unreachable. Increase ttmatrix.point_walking_neighbors."
+                )
+            baseline_valid = np.isfinite(baseline) & (direct_minutes > 0)
+            baseline_detours = baseline[baseline_valid] / direct_minutes[baseline_valid]
+            detour_warning_ratio = float(tt_cfg.get("detour_warning_ratio", 2.0))
+            baseline_routing_diagnostics.update({
+                "detour_ratio_p99": float(np.quantile(baseline_detours, 0.99)),
+                "detour_ratio_max": float(baseline_detours.max()),
+                "detour_warning_ratio": detour_warning_ratio,
+                "detour_warning_pairs": int(
+                    (baseline_detours > detour_warning_ratio).sum()
+                ),
+            })
+            baseline_definition = "standalone TTMATRIX nearest-neighbour walking graph"
+        else:
+            baseline = direct_minutes.copy()
+            baseline_definition = "direct centroid-to-centroid travel without a baseline network"
         baseline_station_count = 0
-        baseline_definition = "direct centroid-to-centroid travel without a baseline network"
+    baseline_seconds = perf_counter() - baseline_started
 
     # Null counterfactual paths mean no transport intervention. Reuse the
     # complete baseline matrix, whether the baseline is direct travel or was
@@ -242,20 +374,31 @@ def generate_travel_times(config: dict[str, Any]) -> dict[str, Any]:
     # counterfactuals without introducing a spurious network change.
     counterfactual_network = config["paths"].get("counterfactual_network")
     counterfactual_stations = config["paths"].get("counterfactual_stations")
+    counterfactual_started = perf_counter()
+    counterfactual_routing_diagnostics: dict[str, Any] = {"network_supplied": False}
     if counterfactual_network and counterfactual_stations:
-        counterfactual, counterfactual_station_count = _travel_matrix_with_network(
-            direct_minutes, coords,
-            Path(counterfactual_network), Path(counterfactual_stations),
-            routing_crs, offnetwork_speed, network_speed, "counterfactual",
-            station_candidates, workers,
-        )
-        counterfactual_definition = (
-            "minimum of direct travel and counterfactual access-network-egress travel"
-        )
+        if routing_method == "standalone_ttmatrix":
+            counterfactual, counterfactual_station_count, counterfactual_routing_diagnostics = (
+                _travel_matrix_with_standalone_ttmatrix(
+                    direct_minutes, coords, Path(counterfactual_network),
+                    Path(counterfactual_stations), routing_crs, offnetwork_speed,
+                    network_speed, "counterfactual", routing_settings,
+                )
+            )
+            counterfactual_definition = "standalone TTMATRIX augmented-graph shortest paths"
+        else:
+            counterfactual, counterfactual_station_count = _travel_matrix_with_network_legacy(
+                direct_minutes, coords, Path(counterfactual_network),
+                Path(counterfactual_stations), routing_crs, offnetwork_speed,
+                network_speed, "counterfactual", station_candidates, workers,
+            )
+            counterfactual_routing_diagnostics = {"network_supplied": True}
+            counterfactual_definition = "legacy direct-or-access-network-egress minimum"
     else:
         counterfactual = baseline.copy()
         counterfactual_station_count = baseline_station_count
         counterfactual_definition = "identical to baseline travel (no transport intervention)"
+    counterfactual_seconds = perf_counter() - counterfactual_started
 
     rule = tt_cfg.get("intrazonal_rule", "keep")
     if rule == "configured_constant":
@@ -287,9 +430,14 @@ def generate_travel_times(config: dict[str, Any]) -> dict[str, Any]:
         "counterfactual_definition": counterfactual_definition,
         "off_network_speed_kmh": offnetwork_speed,
         "network_speed_kmh": network_speed,
-        "routing_method": "ttmatrix_origin_routing",
-        "station_candidates": "all" if station_candidates is None else station_candidates,
+        "routing_method": routing_method,
+        "legacy_station_candidates": "all" if station_candidates is None else station_candidates,
         "workers": workers,
+        "direct_matrix_seconds": direct_seconds,
+        "baseline_routing_seconds": baseline_seconds,
+        "counterfactual_routing_seconds": counterfactual_seconds,
+        "baseline_routing": baseline_routing_diagnostics,
+        "counterfactual_routing": counterfactual_routing_diagnostics,
         "routing_crs": str(routing_crs),
         "baseline_mean_minutes": float(baseline.mean()),
         "counterfactual_mean_minutes": float(counterfactual.mean()),

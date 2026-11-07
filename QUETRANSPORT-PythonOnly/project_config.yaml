@@ -130,9 +130,18 @@ ttmatrix:
   # also includes access and egress at off_network_speed_kmh.
   network_speed_kmh: 33
 
-  # Exact default; enter a positive integer for approximate nearest-station routing.
-  station_candidates: all
-  workers: auto
+  # Default: reproduce the standalone TTMATRIX augmented graph. The alternative
+  # legacy_access_network_egress retains the earlier QUETRANSPORT calculation.
+  routing_method: standalone_ttmatrix
+  point_station_neighbors: 3
+  point_walking_neighbors: 5
+  snap_tolerance_m: 1.0
+  station_split_buffer_m: 0.5
+  station_connector_minutes: 0.0001
+  detour_warning_ratio: 2.0
+  # One worker matches standalone TTMATRIX; auto is optional for large machines.
+  workers: 1
+  legacy_station_candidates: all
 
   time_unit: minutes
 

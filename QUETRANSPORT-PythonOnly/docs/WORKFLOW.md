@@ -19,13 +19,19 @@ population. Locations, polygons and centroids are exported and validated.
 
 TTMATRIX constructs baseline and counterfactual matrices from centroids and
 network layers, or validates two user-provided labelled matrices. Null baseline
-network paths mean direct off-network baseline travel. Null counterfactual
+network paths mean no initial transport network. Null counterfactual
 network paths copy the complete baseline matrix for a fundamentals-only
 experiment.
 
-Network routing follows the TTMATRIX access--network--egress structure and is
-parallelized over origins. `station_candidates: all` is exact; a positive
-integer is an explicit nearest-station approximation for large applications.
+The default `standalone_ttmatrix` method reproduces the standalone augmented
+graph: endpoint snapping, network-coordinate vertices, station connectors,
+three station links and five walking-neighbour links per location, minute edge
+weights, and NetworkX Dijkstra. With no baseline network, it uses the same
+walking graph without network or station edges. Diagnostics expose disconnected
+components, unreachable OD pairs and extreme detours rather than adding edges.
+The selectable `legacy_access_network_egress` method retains straight-line
+direct travel and the earlier station access--network--egress calculation. The
+two methods are not numerically equivalent.
 
 ## Stage 3: optional primitive changes
 
@@ -62,4 +68,6 @@ scenario also reports a worker-welfare decomposition.
 - `python src/python/run_pipeline.py --model-only --skip-maps`: solver comparison without map regeneration.
 
 Dense travel and commuting matrices scale with the square of the number of
-locations, but routing no longer constructs one such matrix per station pair.
+locations. The origin-routing implementation avoids constructing one such
+matrix for every station pair. Use a coarser grid or a machine with more memory
+for large cities.

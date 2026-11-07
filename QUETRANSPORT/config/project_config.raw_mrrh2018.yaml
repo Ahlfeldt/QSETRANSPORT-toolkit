@@ -117,9 +117,17 @@ ttmatrix:
   # also includes access and egress at off_network_speed_kmh.
   network_speed_kmh: 150
 
-  # Exact default; use a positive integer for approximate nearest-station routing.
-  station_candidates: all
-  workers: auto
+  # Reproduce standalone TTMATRIX by default. Use
+  # legacy_access_network_egress only to reproduce earlier toolkit routing.
+  routing_method: standalone_ttmatrix
+  point_station_neighbors: 3
+  point_walking_neighbors: 5
+  snap_tolerance_m: 1.0
+  station_split_buffer_m: 0.5
+  station_connector_minutes: 0.0001
+  detour_warning_ratio: 2.0
+  workers: 1
+  legacy_station_candidates: all
 
   time_unit: minutes
 

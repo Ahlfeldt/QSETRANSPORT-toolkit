@@ -12,6 +12,8 @@ QUETRANSPORT separates practical instructions from formal model documentation.
 
 - [Data contract](DATA_CONTRACT.md): schemas, identifiers, interpolation and validation.
 - [Workflow](WORKFLOW.md): GRID, TTMATRIX, inversion, three-scenario simulation and reporting.
+- [TTMATRIX routing](TTMATRIX_ROUTING.md): selectable graph assumptions,
+  diagnostics, validation and routing-only benchmarks.
 - [Model architecture](MODEL_ARCHITECTURE.md): equilibrium closures, fixed-distribution accounting, numerical conventions and source boundaries.
 - [Codebook source](QUETRANSPORT_CODEBOOK.tex): editable LaTeX.
 
